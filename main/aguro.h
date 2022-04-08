@@ -38,11 +38,15 @@ class Aguro
     */
 private:
     bool start = true;
-    bool DEBUG = false;
+    bool DEBUG = true;
     bool sensors[8];
     Sensor *s;
     void updateSensor();
     void buttonInterrupt();
+    int last_err;
+    int I;
+
+
 public:
     // initialize all the pin mode and interrupt and communication if present
     void init(bool debug=true, Sensor *sensor = NULL);

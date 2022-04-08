@@ -48,7 +48,7 @@ void Sensor::calibrateLine()
     int min_[8] = {1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023};
     int max_[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     int counter = 0;
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < 500; i++)
     {
         this->readsensorline();
         int tmp[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -63,9 +63,10 @@ void Sensor::calibrateLine()
         }
         if (DEBUG)
         {
-            for (int i = 0; i < 8; i++)
-                Serial.print("\t" + String(tmp[i]));
-            Serial.println();
+            Serial.print("*C");
+            for (int i = 0; i < 8; i++){
+                Serial.print(String(tmp[i])+",");}
+            Serial.println("#");
         }
     }
     this->calibrated = true;
@@ -87,10 +88,10 @@ void Sensor::calibrateLine()
         for (int i = 0; i < 8; i++)
             Serial.print("\t" + String(max_[i]));
         Serial.println();
-    }
-    for (int i = 0; i < 8; i++)
-    {
-        Serial.println("active : val > " + String((max_line[i] - min_line[i]) / 2 + min_line[i]));
+        for (int i = 0; i < 8; i++)
+        {
+            Serial.println("active : val > " + String((max_line[i] - min_line[i]) / 2 + min_line[i]));
+        }
     }
 }
 
@@ -106,6 +107,10 @@ bool Sensor::readlinebool(int index)
     }
     else
     {
+        if (sensors[index] > 800)
+            return 1;
+        else
+            return 0;
         Serial.println("Not calibrated");
     }
 }
@@ -176,6 +181,7 @@ void Aguro::init(bool debug, Sensor *sensor)
 void Aguro::updateSensor()
 {
     noInterrupts();
+    Serial.print("*S");
     for (int i = 0; i < 8; i++)
     {
         sensors[i] = s->readlinebool(i);
@@ -189,9 +195,9 @@ void Aguro::updateSensor()
             leds[i] = CRGB(0, 255, 0);
             FastLED.show();
         }
-        // Serial.print("\t" + String(sensors[i]));
+        Serial.print(String(sensors[i]) + ",");
     }
-    // Serial.println();
+    Serial.println("#");
     interrupts();
 }
 
@@ -228,40 +234,58 @@ void Aguro::followUntil(char type)
 
 void Aguro::traceLine()
 {
+
+    int dl = 50, dr = 50;
+    int err;
+    int P,D,dErr,Kp = 1, Ki = 0, Kd = 0;
+    int base_speedl = 150;
+    int base_speedr = 150;
+    int max_speedl = 240;
+    int max_speedr = 240;
+
     updateSensor();
     //    0 1 2 3 4 5 6 7
     if (sensors[3] == 1 && sensors[4] == 1)
     {
-        Serial.println("robot maju");
-        motor(255, 255);
+        err = 0;
+
     }
 
     else if (sensors[3] == 1 || sensors[4] == 1)
-    {
-        if (sensors[4] == 1)
-            motor(230, 200);
-        else
-            motor(200, 230);
-    }
-    else if (sensors[2] == 1 || sensors[1] == 1)
-        motor(170, 230);
-    else if (sensors[6] == 1 || sensors[5] == 1)
-        motor(230, 170);
-    else if (sensors[0] == 1)
-        motor(120, 230);
-    else if (sensors[7] == 1)
-        motor(230, 120);
+        if (sensors[3] == 1) err = -5; else err = 5;
+    
+    else if (sensors[2] == 1 || sensors[5] == 1)
+        if(sensors[2]) err = -10; else err = 10;
+
+    else if(sensors[1]==1|| sensors[6]==1)
+        if(sensors[1]) err = -15; else err = 15;
+    
+    else if (sensors[0] == 1 || sensors[7] == 1)
+        if(sensors[0]) err = -20; else err = 20;
     else
     {
-        motor(100, 100);
+
     }
+    dErr = err - last_err;
+    last_err = err;
+    P = err;
+    I += err;
+    int speed = P*Kp + I*Ki + D*Kd;
+    dl = base_speedl + speed;
+    dr = base_speedr - speed;
+    if (dl > max_speedl) dl = max_speedl;
+    if (dr > max_speedr) dr = max_speedr;
+    Serial.print("*P" + String(err)+","+String(dl)+","+String(dr)+"#");
+    //     Serial.print("err: " + String(err));
+    // Serial.println("dl: "+String(dl)+"\t dr: "+String(dr));
+    motor(dl,dr);
 }
 
 void Aguro::motor(int dl, int dr)
 {
     float dist = s->read_ultrasonic();
     if (DEBUG)
-        Serial.println("dist : " + String(dist));
+        Serial.println("*D" + String(dist)+"#");
     if (dist < 20)
     {
         dl = 0;
@@ -311,5 +335,6 @@ void loop()
     {
         aguro.traceLine();
         Serial.println("tracing line");
+        delay(100);
     }
 }
