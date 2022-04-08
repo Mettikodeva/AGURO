@@ -43,8 +43,8 @@ private:
     Sensor *s;
     void updateSensor();
     void buttonInterrupt();
-    int last_err;
-    int I;
+    int last_err=0;
+    int I=0;
 
 
 public:

@@ -5,7 +5,7 @@
 #define LED_TYPE WS2812B
 #define NUM_LEDS 8
 #define COLOR_ORDER RGB
-#define BRIGHTNESS 30
+#define BRIGHTNESS 20
 CRGB leds[NUM_LEDS];
 #define UPDATES_PER_SECOND 100
 void Sensor::init(bool debug)
@@ -43,8 +43,34 @@ void Sensor::calibrateLine()
     {
         Serial.println("Calibrating line sensor...");
     }
+
+    int shift = 0;
+    for (int j = 0; j < 30; j++)
+    {
+        for (int i = 0; i < NUM_LEDS; i++)
+        {
+            if (i <= shift)
+            {
+                leds[i] = CRGB(255, 255, 0);
+                FastLED.show();
+            }
+            else
+            {
+                leds[i] = CRGB(0, 0, 0);
+                FastLED.show();
+            }
+            delay(5);
+            // FastLED.show();
+        }
+        shift++;
+        if (shift >= NUM_LEDS+2)
+        {
+            shift = 0;
+        }
+    }
     noInterrupts();
     digitalWrite(LED_BUILTIN, HIGH);
+    
     int min_[8] = {1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023};
     int max_[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     int counter = 0;
@@ -76,6 +102,11 @@ void Sensor::calibrateLine()
         max_line[i] = max_[i];
     }
     digitalWrite(LED_BUILTIN, LOW);
+    for(int i=0;i<8;i++){
+        leds[i]=CRGB(0,0,0);
+        FastLED.show();
+        delay(100);
+    }
     interrupts();
     Serial.println("Calibrated");
     if (DEBUG)
@@ -174,8 +205,10 @@ void Aguro::init(bool debug, Sensor *sensor)
     pinMode(Relay, OUTPUT);
     //    attachInterrupt(PB,buttonInterrupt, LOW);
     s = sensor;
+    
     s->init(debug);
     this->DEBUG = debug;
+    
     s->calibrateLine();
 }
 void Aguro::updateSensor()
@@ -221,7 +254,7 @@ void Aguro::followUntil(char type)
                 break;
             }
         }
-        else if (type == FL)
+        else if (type == FL)    
         {
             if (sensors[0] && sensors[1])
             {
@@ -236,36 +269,35 @@ void Aguro::traceLine()
 {
 
     int dl = 50, dr = 50;
-    int err;
-    int P,D,dErr,Kp = 1, Ki = 0, Kd = 0;
+    int err = 0 ;
+    int P,D,dErr;
+    float Kp = 1, Ki =0.5, Kd = 2;
     int base_speedl = 150;
     int base_speedr = 150;
     int max_speedl = 240;
     int max_speedr = 240;
 
     updateSensor();
-    //    0 1 2 3 4 5 6 7
-    if (sensors[3] == 1 && sensors[4] == 1)
+    //    0 1  2  3 4  5  6 7
+    if (sensors[3] ==0 && sensors[4] ==0)
     {
         err = 0;
 
     }
 
-    else if (sensors[3] == 1 || sensors[4] == 1)
-        if (sensors[3] == 1) err = -5; else err = 5;
+    else if (sensors[3] ==0 || sensors[4] ==0)
+        if (sensors[3] ==0) err = -5; else err = 5;
     
-    else if (sensors[2] == 1 || sensors[5] == 1)
-        if(sensors[2]) err = -10; else err = 10;
-
-    else if(sensors[1]==1|| sensors[6]==1)
-        if(sensors[1]) err = -15; else err = 15;
-    
-    else if (sensors[0] == 1 || sensors[7] == 1)
+    else if (sensors[0] == 0 || sensors[7] == 0)
         if(sensors[0]) err = -20; else err = 20;
-    else
-    {
 
-    }
+    else if(sensors[1]==0|| sensors[6]==0)
+        if(sensors[1]) err = -15; else err =15;
+
+    else if (sensors[2] ==0 || sensors[5] ==0)
+        if(sensors[2]) err = -10; else err =10;
+    else
+        err = 0;
     dErr = err - last_err;
     last_err = err;
     P = err;
@@ -274,10 +306,10 @@ void Aguro::traceLine()
     dl = base_speedl + speed;
     dr = base_speedr - speed;
     if (dl > max_speedl) dl = max_speedl;
+    else if(dl<-max_speedl) dl = -max_speedl;
     if (dr > max_speedr) dr = max_speedr;
+    else if(dr<-max_speedr) dr = -max_speedr;
     Serial.print("*P" + String(err)+","+String(dl)+","+String(dr)+"#");
-    //     Serial.print("err: " + String(err));
-    // Serial.println("dl: "+String(dl)+"\t dr: "+String(dr));
     motor(dl,dr);
 }
 
@@ -324,9 +356,9 @@ Sensor mysensor;
 void setup()
 {
     Serial.begin(115200);
-    aguro.init(true, &mysensor);
     FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
     FastLED.setBrightness(BRIGHTNESS);
+    aguro.init(true, &mysensor);
 }
 
 void loop()
