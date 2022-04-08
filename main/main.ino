@@ -5,9 +5,9 @@
 #define LED_TYPE WS2812B
 #define NUM_LEDS 8
 #define COLOR_ORDER RGB
-#define BRIGHTNESS 65
+#define BRIGHTNESS 30
 CRGB leds[NUM_LEDS];
-#define UPDATES_PER_SECOND 100 
+#define UPDATES_PER_SECOND 100
 void Sensor::init(bool debug)
 {
     pinMode(Trig, OUTPUT);
@@ -61,13 +61,12 @@ void Sensor::calibrateLine()
             if (tmp[j] > max_[j])
                 max_[j] = tmp[j];
         }
-                if (DEBUG)
-                {
-                  for(int i=0;i<8;i++)
-                    Serial.print("\t"+String(tmp[i]));
-                   Serial.println();
-                    
-                }
+        if (DEBUG)
+        {
+            for (int i = 0; i < 8; i++)
+                Serial.print("\t" + String(tmp[i]));
+            Serial.println();
+        }
     }
     this->calibrated = true;
     for (int i = 0; i < 8; i++)
@@ -78,16 +77,17 @@ void Sensor::calibrateLine()
     digitalWrite(LED_BUILTIN, LOW);
     interrupts();
     Serial.println("Calibrated");
-        if(DEBUG){
-            Serial.print("min: ");
-            for(int i=0; i<8;i++)
-              Serial.print("\t"+String(min_[i]));
-             Serial.println();
-            Serial.print("max: ");
-            for(int i=0; i<8;i++)
-              Serial.print("\t"+String(max_[i]));
-            Serial.println();
-        }
+    if (DEBUG)
+    {
+        Serial.print("min: ");
+        for (int i = 0; i < 8; i++)
+            Serial.print("\t" + String(min_[i]));
+        Serial.println();
+        Serial.print("max: ");
+        for (int i = 0; i < 8; i++)
+            Serial.print("\t" + String(max_[i]));
+        Serial.println();
+    }
     for (int i = 0; i < 8; i++)
     {
         Serial.println("active : val > " + String((max_line[i] - min_line[i]) / 2 + min_line[i]));
@@ -119,7 +119,7 @@ float Sensor::read_ultrasonic()
     delayMicroseconds(10);
     digitalWrite(Trig, LOW);
     float duration = pulseIn(Echo, HIGH);
-    float distance = duration / (29.1*2);
+    float distance = duration / (29.1 * 2);
     if (DEBUG)
     {
         Serial.print("Distance: ");
@@ -179,19 +179,19 @@ void Aguro::updateSensor()
     for (int i = 0; i < 8; i++)
     {
         sensors[i] = s->readlinebool(i);
-        if(sensors[i] == 0){
-          leds[i] = CRGB(255, 0, 0);
-          FastLED.show();
+        if (sensors[i] == 0)
+        {
+            leds[i] = CRGB(255, 0, 0);
+            FastLED.show();
         }
-        else{
-          leds[i] = CRGB(0, 255, 0);
-          FastLED.show();
+        else
+        {
+            leds[i] = CRGB(0, 255, 0);
+            FastLED.show();
         }
-        Serial.print("\t"+String(sensors[i]));
-
-        
+        // Serial.print("\t" + String(sensors[i]));
     }
-    Serial.println();
+    // Serial.println();
     interrupts();
 }
 
@@ -230,11 +230,12 @@ void Aguro::traceLine()
 {
     updateSensor();
     //    0 1 2 3 4 5 6 7
-    if (sensors[3] == 1 && sensors[4] == 1){
+    if (sensors[3] == 1 && sensors[4] == 1)
+    {
         Serial.println("robot maju");
-          motor(255, 255);
+        motor(255, 255);
     }
-      
+
     else if (sensors[3] == 1 || sensors[4] == 1)
     {
         if (sensors[4] == 1)
@@ -250,10 +251,10 @@ void Aguro::traceLine()
         motor(120, 230);
     else if (sensors[7] == 1)
         motor(230, 120);
-    else{
-      motor(120,120);
+    else
+    {
+        motor(100, 100);
     }
-    
 }
 
 void Aguro::motor(int dl, int dr)
@@ -271,7 +272,7 @@ void Aguro::motor(int dl, int dr)
     {
         digitalWrite(IN1, HIGH);
         digitalWrite(IN2, LOW);
-        
+
         analogWrite(ENA, -dl);
     }
     else
@@ -296,15 +297,18 @@ void Aguro::motor(int dl, int dr)
 
 Aguro aguro;
 Sensor mysensor;
-void setup(){
+void setup()
+{
     Serial.begin(115200);
     aguro.init(true, &mysensor);
     FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
     FastLED.setBrightness(BRIGHTNESS);
 }
 
-void loop(){
-    if(aguro.isStarted()){
+void loop()
+{
+    if (aguro.isStarted())
+    {
         aguro.traceLine();
         Serial.println("tracing line");
     }
