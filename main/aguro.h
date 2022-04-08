@@ -50,7 +50,7 @@ public:
     void traceLine();
     void followUntil(char type);
 
-    void motor(int lspeed, int rspeed, float time=0);
+    void motor(int dl, int dr);
     bool isStarted();
     void centering();
 };
