@@ -37,7 +37,7 @@ class Aguro
     TODO :  add pid at traceLine
     */
 private:
-    bool start = false;
+    bool start = true;
     bool DEBUG = false;
     bool sensors[8];
     Sensor *s;
@@ -48,7 +48,7 @@ public:
     void init(bool debug=true, Sensor *sensor = NULL);
     // just to follow closed loop line without junction
     void traceLine();
-    int followUntil();
+    void followUntil(char type);
 
     void motor(int lspeed, int rspeed, float time=0);
     bool isStarted();

@@ -2,6 +2,7 @@
 #define sensor_h
 #include "Arduino.h"
 // sensors pin without mux or i2c  I/O expander
+
 #define sp1 A0
 #define sp2 A1
 #define sp3 A2
@@ -14,7 +15,6 @@
 // ultrasonic pin
 #define Trig 5 // PD5 //output
 #define Echo 4 // PD4 //input
-
 
 class Sensor
 {
@@ -31,7 +31,6 @@ private:
     int max_line[8];
     int min_line[8];
     bool calibrated = false;
-    
 
 public:
     void init(bool debug = true);
@@ -42,7 +41,5 @@ public:
     bool readlinebool(int index);
     // read ultrasonic and return in cm
     float read_ultrasonic();
-
 };
-
 #endif

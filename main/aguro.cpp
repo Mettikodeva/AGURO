@@ -40,13 +40,14 @@ void Aguro::init(bool debug, Sensor *sensor)
     pinMode(ENA, OUTPUT);
     pinMode(ENB, OUTPUT);
     pinMode(Relay, OUTPUT);
-    attachInterrupt(PB, this->buttonInterrupt, LOW);
+//    attachInterrupt(PB,buttonInterrupt, LOW);
     s = sensor;
     s->init(debug);
     this->DEBUG = debug;
+    s->calibrateLine();
 }
 void Aguro::updateSensor(){
-    nointerrupts();
+    noInterrupts();
     for (int i = 0; i < 8; i++)
     {
         sensors[i] = s->readlinebool(i);
@@ -76,6 +77,7 @@ void Aguro::followUntil(char type){
         traceLine();
     }
 }
+
 void Aguro::traceLine(){
     updateSensor();
     //    0 1 2 3 4 5 6 7
@@ -131,4 +133,3 @@ void Aguro::motor(int dl, int dr, float time=0)
         digitalWrite(IN4, LOW);
     }
 }
-

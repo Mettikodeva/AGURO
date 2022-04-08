@@ -16,7 +16,7 @@ void Sensor::init(bool debug){
 
 char Sensor::readsensorline(int sample_count)
 {
-    nointerrupts();
+    noInterrupts();
         sensors[0] = analogRead(sp1);
         sensors[1] = analogRead(sp2);
         sensors[2] = analogRead(sp3);
@@ -33,7 +33,7 @@ void Sensor::calibrateLine()
     if(this->DEBUG){
         Serial.println("Calibrating line sensor...");
     }
-    nointerrupts();
+    noInterrupts();
     digitalWrite(LED_BUILTIN, HIGH);
     int min_[8] = {1023, 1023, 1023, 1023, 1023, 1023, 1023, 1023};
     int max_[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -50,10 +50,10 @@ void Sensor::calibrateLine()
             if (tmp[j] > max_[j])
                 max_[j] = tmp[j];
         }
-        if (DEBUG)
-        {
-            Serial.println("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d",tmp[0],tmp[1],tmp[2],tmp[3],tmp[4],tmp[5],tmp[6],tmp[7]);
-        }
+//        if (DEBUG)
+//        {
+//            Serial.println("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d",tmp[0],tmp[1],tmp[2],tmp[3],tmp[4],tmp[5],tmp[6],tmp[7]);
+//        }
     }
     this->calibrated = true;
     for (int i = 0; i < 8; i++)
@@ -64,17 +64,18 @@ void Sensor::calibrateLine()
     digitalWrite(LED_BUILTIN, LOW);
     interrupts();
     Serial.println("Calibrated");
-    if(DEBUG){
-        Serial.print("min: ");
-        Serial.println("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", min_[0], min_[1], min_[2], min_[3], min_[4], min_[5], min_[6], min_[7]);
-        Serial.print("max: ");
-        Serial.println("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", min_[0], min_[1], min_[2], min_[3], min_[4], min_[5], min_[6], min_[7]);
+//    if(DEBUG){
+//        Serial.print("min: ");
+//        Serial.println("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", min_[0], min_[1], min_[2], min_[3], min_[4], min_[5], min_[6], min_[7]);
+//        Serial.print("max: ");
+//        Serial.println("%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", max_[0], max_[1], max_[2], max_[3], max_[4], max_[5], max_[6], max_[7]);
         for(int i =0; i<8; i++){
             Serial.println("active : val > " + String((max_line[i] - min_line[i]) / 2 + min_line[i]));      
         }
-    }
+      }
 
-}
+
+
 
 bool Sensor::readlinebool(int index){
     readsensorline();
