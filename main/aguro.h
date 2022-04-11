@@ -42,21 +42,21 @@ private:
     bool sensors[8];
     Sensor *s;
     void updateSensor();
-    void buttonInterrupt();
-    int last_err=0;
-    int I=0;
-
-
+    // void buttonInterrupt();
+    // bool button_pressed = false;
+    // int last_err=0;
+    // int I=0;
 public:
     // initialize all the pin mode and interrupt and communication if present
     void init(bool debug=true, Sensor *sensor = NULL);
     // just to follow closed loop line without junction
-    void traceLine();
-    void followUntil(char type);
+    void traceLine(int speed);
+    void followUntil(char type, int speed);
 
-    void motor(int dl, int dr);
+    void motor(char dl, char dr);
     bool isStarted();
     void centering();
+    void stop();
 };
 
 

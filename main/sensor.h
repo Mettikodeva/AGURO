@@ -38,6 +38,8 @@ public:
     void calibrateLine();
     char readsensorline(int sample_count = 4);
     // to read the line sensor, SENSOR SHOULD BE CALIBRATED!
+    //  1 = LINE FOUND
+    //  0 = LINE NOT FOUND
     bool readlinebool(int index);
     // read ultrasonic and return in cm
     float read_ultrasonic();
