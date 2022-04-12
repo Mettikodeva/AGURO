@@ -1,6 +1,8 @@
 import serial
 import cv2 as cv
 import numpy as np
+import time
+import matplotlib.pyplot as plt
 
 base_img = np.zeros((480, 640, 3), np.uint8)
 if __name__ == "__main__":
@@ -9,6 +11,8 @@ if __name__ == "__main__":
     distance = 0
     pid = [0, 0, 0]  # err dl dr
     sensor = [0, 0, 0, 0, 0, 0, 0, 0]
+    time_list = []
+    data_err = []
     try:
         while True:
             img = base_img.copy()
@@ -61,7 +65,8 @@ if __name__ == "__main__":
                     continue
                 data = data.replace("#", "")
                 pid = data.split(",")
-
+                data_err.append(pid[0])
+                time_list.append(time.time())
                 print("pid ", pid)
 
             elif type == "S":
@@ -120,3 +125,7 @@ if __name__ == "__main__":
         # cv.destroyAllWindows()
         # print("All windows closed")
         exit()
+    plt.title("err")
+    # plt.axis([0, len(time), -1, 1])
+    plt.plot(time_list, data_err)
+    plt.show()
