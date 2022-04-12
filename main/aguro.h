@@ -15,9 +15,9 @@
 #define IN4 9  // PB1
 #define ENB 10 // PB3
 
-#define PB 2 // push button //PCINT0 //should be input pullup
+#define PB 13 // push button //PCINT0 //should be input pullup
 
-#define Relay 3 // relay for controling electromagnet //PD3
+#define Relay 2 // relay for controling electromagnet //PD3
 
 // followUntil type
 #define TJ 0 // T junction or 4 way
@@ -41,22 +41,24 @@ private:
     bool DEBUG = true;
     bool sensors[8];
     Sensor *s;
-    void updateSensor();
+    
     // void buttonInterrupt();
     // bool button_pressed = false;
     // int last_err=0;
     // int I=0;
 public:
+    void updateSensor();
     // initialize all the pin mode and interrupt and communication if present
     void init(bool debug=true, Sensor *sensor = NULL);
     // just to follow closed loop line without junction
     void traceLine(int speed);
     void followUntil(char type, int speed);
 
-    void motor(char dl, char dr);
+    void motor(int dl, int dr);
     bool isStarted();
     void centering();
     void stop();
+    void stop_motor();
 };
 
 
