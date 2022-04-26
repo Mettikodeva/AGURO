@@ -41,7 +41,8 @@ private:
     bool DEBUG = true;
     bool sensors[8];
     Sensor *s;
-    
+    bool line_found = false;
+    int after_turn = 0;
     // void buttonInterrupt();
     // bool button_pressed = false;
     // int last_err=0;

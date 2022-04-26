@@ -29,34 +29,6 @@ if __name__ == "__main__":
             except UnicodeDecodeError:
                 continue
             print(type)
-            # if type == "C":
-            # calibrating = True
-            # try:
-            #     data = ser.read_until("#").decode("utf-8")
-            # except UnicodeDecodeError:
-            #     continue
-            # data = data.split(",")
-            # print(data)
-            # cv.putText(
-            #     img,
-            #     "Calibrating",
-            #     (10, 30),
-            #     cv.FONT_HERSHEY_SIMPLEX,
-            #     1,
-            #     (255, 255, 255),
-            #     2,
-            # )
-            # for i in range(8):
-            #     cv.putText(
-            #         img,
-            #         str(data[i]),
-            #         (10, 60 + i * 20),
-            #         cv.FONT_HERSHEY_SIMPLEX,
-            #         1,
-            #         (255, 255, 255),
-            #         2,
-            #     )
-            # else:
             if type == "P":
                 print("pid")
                 try:
@@ -65,7 +37,7 @@ if __name__ == "__main__":
                     continue
                 data = data.replace("#", "")
                 pid = data.split(",")
-                data_err.append(pid[0])
+                data_err.append(int(pid[0]))
                 time_list.append(time.time())
                 print("pid ", pid)
 
@@ -122,10 +94,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         ser.close()
         print("Serial closed")
-        # cv.destroyAllWindows()
-        # print("All windows closed")
         exit()
     plt.title("err")
-    # plt.axis([0, len(time), -1, 1])
     plt.plot(time_list, data_err)
     plt.show()

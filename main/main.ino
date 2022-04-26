@@ -6,7 +6,7 @@
 #define LED_TYPE WS2812B
 #define NUM_LEDS 8
 #define COLOR_ORDER RGB
-#define BRIGHTNESS 30
+#define BRIGHTNESS 50
 CRGB leds[NUM_LEDS];
 #define UPDATES_PER_SECOND 100
 
@@ -63,7 +63,7 @@ void Sensor::calibrateLine()
 {
     if (this->DEBUG)
     {
-        Serial.println("Calibrating line sensor...");
+        // Serial.println("Calibrating line sensor...");
     }
     int shift = 0;
     for (int j = 0; j < 30; j++)
@@ -115,7 +115,7 @@ void Sensor::calibrateLine()
         for (int i = 0; i < 8; i++)
         {
             background_[i] = sensors[i];
-            Serial.println("baca background " + String(sensors[i]));
+            // Serial.println("baca background " + String(sensors[i]));
         }
         delay(10);
     }
@@ -135,10 +135,10 @@ void Sensor::calibrateLine()
     //     }
     //     if (DEBUG)
     //     {
-    //         Serial.print("*C");
+            // Serial.print("*C");
     //         for (int i = 0; i < 8; i++){
-    //             Serial.print(String(tmp[i])+",");}
-    //         Serial.println("#");
+                // Serial.print(String(tmp[i])+",");}
+            // Serial.println("#");
     //     }
     //     delay(10);
     // }
@@ -164,20 +164,20 @@ void Sensor::calibrateLine()
         delay(100);
     }
     interrupts();
-    Serial.println("Calibrated");
+    // Serial.println("Calibrated");
     if (DEBUG)
     {
-        Serial.print("line: ");
+        // Serial.print("line: ");
         for (int i = 0; i < 8; i++)
-            Serial.print("\t" + String(line_[i]));
-        Serial.println();
-        Serial.print("bg: ");
+            // Serial.print("\t" + String(line_[i]));
+        // Serial.println();
+        // Serial.print("bg: ");
         for (int i = 0; i < 8; i++)
-            Serial.print("\t" + String(background_[i]));
-        Serial.println();
+            // Serial.print("\t" + String(background_[i]));
+        // Serial.println();
         for (int i = 0; i < 8; i++)
         {
-            Serial.println("active : val > " + String((max_line[i] - min_line[i]) / 2 + min_line[i]));
+            // Serial.println("active : val > " + String((max_line[i] - min_line[i]) / 2 + min_line[i]));
         }
     }
 }
@@ -205,7 +205,7 @@ bool Sensor::readlinebool(int index)
             return 1;
         else
             return 0;
-        Serial.println("Not calibrated");
+        // Serial.println("Not calibrated");
     }
 }
 
@@ -218,11 +218,11 @@ float Sensor::read_ultrasonic()
     delayMicroseconds(10);
     digitalWrite(Trig, LOW);
     float duration = pulseIn(Echo, HIGH);
-    float distance = duration / (30 * 2);
+    float distance = duration / (34.1 * 2);
     if (DEBUG)
     {
-        Serial.print("Distance: ");
-        Serial.println(distance);
+        // Serial.print("Distance: ");
+        // Serial.println(distance);
     }
     return distance;
 }
@@ -264,15 +264,94 @@ void Aguro::init(bool debug, Sensor *sensor)
     s->calibrateLine();
 }
 
-void centering(){
-    
-    
+void Aguro::centering(){
+    updateSensor();
+    float dl, dr, out;
+    signed char err = 0;
+    static float I;
+    static signed char P, D, dErr, last_err;
+    float Kp = 3, Ki = 0.05, Kd = 2;
+    int max_speedl = 250;
+    int max_speedr = 250;
+    int counter = 0;
+    while(!sensors[3]&&!sensors[4] && counter > 3){
+        updateSensor();
+        counter++;
+        if (sensors[3] == 1 && sensors[4] == 1)
+        {
+            break;
+            err = 0;
+            line_found = true;
+        }
+        else if (sensors[3] == 1 || sensors[4] == 1)
+        {
+            if (sensors[3] == 1)
+                err = -7;
+            else
+                err = 7;
+            line_found = true;
+        }
+
+        else if (sensors[0] == 1 || sensors[7] == 1)
+        {
+            if (sensors[0])
+                if (line_found == true)
+                    err = -60;
+                else
+                    err = 80;
+            else if (line_found == true)
+                err = 60;
+            else
+                err = -80;
+            line_found = true;
+        }
+
+        else if (sensors[1] == 1 || sensors[6] == 1)
+        {
+            if (sensors[1])
+                err = -40;
+            else
+                err = 40;
+            counter++;
+            line_found = true;
+        }
+
+        else if (sensors[2] == 1 || sensors[5] == 1)
+        {
+            if (sensors[2])
+                err = -25;
+            else
+                err = 25;
+            counter+=2;
+            line_found = true;
+        }
+
+        dErr = err - last_err;
+        if (line_found)
+            last_err = err;
+        P = Kp * err;
+        I += err;
+        D = Kd * dErr;
+        out = (float)P + (float)I * Ki + (float)D;
+        dl = (float)+out;
+        dr = (float)-out;
+        if (dl > max_speedl)
+            dl = max_speedl;
+        else if (dl < -max_speedl)
+            dl = -max_speedl;
+        if (dr > max_speedr)
+            dr = max_speedr;
+        else if (dr < -max_speedr)
+            dr = -max_speedr;
+        // Serial.print("*P" + String(err) + "," + String(dl) + "," + String(dr) + "#");
+        motor(dl, dr);
+    }
 }
 
 void Aguro::updateSensor()
 {
     noInterrupts();
-    Serial.print("*S");
+    // Serial.print("*S");
     for (int i = 0; i < 8; i++)
     {
         sensors[i] = s->readlinebool(i);
@@ -288,7 +367,7 @@ void Aguro::updateSensor()
         }
         Serial.print(String(sensors[i]) + ",");
     }
-    Serial.println("#");
+    // Serial.println("#");
     interrupts();
 }
 
@@ -358,52 +437,95 @@ void Aguro::traceLine(int speed)
     signed char err = 0 ;
     static float I;
     static signed char P,D,dErr, last_err;
-    float Kp = 3, Ki =0.01, Kd = 0;
-    int base_speedl = speed + 3;
+    float Kp = 2, Ki =0.05, Kd = 2;
+    int base_speedl = speed;
     int base_speedr = speed;    
-    int max_speedl = 240+3;
+    int max_speedl = 240;
     int max_speedr = 240;
 
     updateSensor();
     //    0 1  2  3 4  5  6 7
-    if (sensors[3] ==1 && sensors[4] ==1)
+    if(after_turn>0){
+        delay(10);
+        centering();
+        after_turn=0;
+    }
+
+    if ((sensors[0] == 1 && sensors[1] == 1 && sensors[2] == 1&&sensors[3]==1) || (sensors[7] == 1 && sensors[6] == 1 && sensors[5] == 1&&sensors[4]==1)){
+        if(sensors[0] == 1){ 
+            err = -200;
+            base_speedl -= 100;
+        }
+        else{
+            base_speedr -= 100;
+            err = 200; 
+        }
+        after_turn++;
+    }
+    else if (sensors[3] ==1 && sensors[4] ==1)
     {
         err = 0;
-        base_speedl += 10;
-        base_speedr += 10;
+        base_speedl += 20;
+        base_speedr +=20;
+        line_found = true;
     }
     else if (sensors[3] ==1 || sensors[4] ==1){
         if (sensors[3] ==1) err = -7; else err = 7;
-        base_speedl+=5;
-        base_speedr+=5;
+        base_speedl+=10;
+        base_speedr+=10;
+        line_found = true;
     }
-    
+    else if ((sensors[0] == 1 && sensors[1] == 1 && sensors[2] == 1) || (sensors[7] == 1 && sensors[6] == 1 && sensors[5] == 1 ))
+    {
+            if (sensors[0] == 1)
+                err = -80;
+            else
+                err = 80;
+    }
     else if (sensors[0] == 1 || sensors[7] == 1){
-        if(sensors[0]) err = -80; else err = 80;
+        if(sensors[0])
+            if(line_found == true) err = -60; else err = 80;
+        else
+            if(line_found == true) err = 60; else err = -80;
         base_speedl-=15;
-        base_speedr-=15;}
+        base_speedr-=15;
+        line_found = true;
+        }
 
-    else if(sensors[1]==1|| sensors[6]==1)
-        if(sensors[1]) err = -35; else err =35;
+    else if(sensors[1]==1|| sensors[6]==1){
+        if(sensors[1]) err = -40; else err =40;
+        line_found = true;
+    }
 
     else if (sensors[2] ==1 || sensors[5] ==1){
-        if(sensors[2]) err = -10; else err =10;
+        if(sensors[2]) err = -25; else err =25;
         base_speedl;
-        base_speedr;}
-    else
-        err = 0;
+        base_speedr;
+        line_found = true;
+    }
+    else{
+        if(last_err>0)
+            err = -last_err;
+        else if (last_err<0)
+            err = last_err;
+        else
+            err = 0;
+        line_found = false;
+    }
     dErr = err - last_err;
-    last_err = err;
-    P = err;
+    if(line_found) last_err = err;
+    P = Kp*err;
     I += err;
-    out = (float)P * Kp + (float)I * Ki + (float)D * Kd;
+    D = Kd*dErr;
+    // out = (float)P + (float)I*Ki+ (float)D;
+    out = (float)P;
     dl = (float)base_speedl + out;
     dr = (float)base_speedr - out;
     if (dl > max_speedl) dl = max_speedl;
     else if(dl<-max_speedl) dl = -max_speedl;
     if (dr > max_speedr) dr = max_speedr;
     else if(dr<-max_speedr) dr = -max_speedr;
-    Serial.print("*P" + String(err)+","+String(dl)+","+String(dr)+"#");
+    // Serial.print("*P" + String(err)+","+String(dl)+","+String(dr)+"#");
     motor(dl, dr);
 }
 void Aguro::stop_motor(){
@@ -416,17 +538,16 @@ void Aguro::motor(int dl, int dr)
     if (DEBUG){
         Serial.println("*D" + String(dist)+"#");
         }
-    if (dist < 20)
+    if (dist < 25)
     {
         dl = 0;
         dr = 0;
-        Serial.println("stopped, please move the obstacle!");
+        // Serial.println("stopped, please move the obstacle!");
     }
     if (dl < 0)
     {
         digitalWrite(IN1, HIGH);
         digitalWrite(IN2, LOW);
-
         analogWrite(ENA, -dl);
     }
     else
@@ -458,19 +579,21 @@ void setup()
     pinMode(13,INPUT);
     pinMode(Relay,OUTPUT);
     digitalWrite(Relay,HIGH);
-    Serial.begin(115200);
+    // Serial.begin(115200);
     FastLED.addLeds<LED_TYPE, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
     FastLED.setBrightness(BRIGHTNESS);
     aguro.init(true, &mysensor);
 }
+
 bool run = false;
 int pb_counter=0;
 void reset(){
-    blink_led(5, 100, CRGB(250,150,0));
+    blink_led(5, 100, CRGB::Yellow);
     aguro.stop_motor();
     resetFunc();
 
 }
+
 void loop()
 {
     
@@ -487,6 +610,8 @@ void loop()
             aguro.stop();
         }
     }
+    aguro.stop_motor();
+    blink_led(1, 100, CRGB::White);
 
     while (aguro.isStarted())
     {
@@ -504,9 +629,9 @@ void loop()
         }
     }
     if(run){
-        aguro.traceLine(120);
-        Serial.println("tracing line");
+        aguro.traceLine(180);
+        // Serial.println("tracing line");
     }
     else aguro.updateSensor();
     }
-    }
+}
