@@ -1,11 +1,6 @@
-
-#ifndef aguro_h
-#define aguro_h
-
-#include "Arduino.h"
+#ifndef AGURO_H
+#define AGURO_H
 #include "sensor.h"
-#include <stdio.h>
-#include "Wire.h"
 
 // Driver motor pin
 #define IN1 6  // left motor //PD6
@@ -24,7 +19,6 @@
 #define FR 1 // Front Right turn
 #define FL 2 // Front Left turn
 
-
 // #define LCD_ADDR 0x27
 // I2C pin
 // #define SDA A4
@@ -33,9 +27,6 @@
 // API for the robot methods
 class Aguro
 {
-    /*
-    TODO :  add pid at traceLine
-    */
 private:
     bool start = true;
     bool DEBUG = true;
@@ -43,14 +34,11 @@ private:
     Sensor *s;
     bool line_found = false;
     int after_turn = 0;
-    // void buttonInterrupt();
-    // bool button_pressed = false;
-    // int last_err=0;
-    // int I=0;
+
 public:
     void updateSensor();
     // initialize all the pin mode and interrupt and communication if present
-    void init(bool debug=true, Sensor *sensor = NULL);
+    void init(bool debug = true, Sensor *sensor = NULL);
     // just to follow closed loop line without junction
     void traceLine(int speed);
     void followUntil(char type, int speed);
@@ -60,8 +48,9 @@ public:
     void centering();
     void stop();
     void stop_motor();
+    void left();
+    void right();
 };
-
 
 int make_safe(int val);
 

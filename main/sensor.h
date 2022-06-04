@@ -1,6 +1,7 @@
-#ifndef sensor_h
-#define sensor_h
-#include "Arduino.h"
+#ifndef SENSOR_H
+#define SENSOR_H
+#include "definitions.h"
+
 // sensors pin without mux or i2c  I/O expander
 
 #define sp1 A0
