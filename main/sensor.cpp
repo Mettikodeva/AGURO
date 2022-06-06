@@ -31,10 +31,6 @@ char Sensor::readsensorline()
 
 void Sensor::calibrateLine()
 {
-    if (this->DEBUG)
-    {
-        // Serial.println("Calibrating line sensor...");
-    }
     int shift = 0;
     for (int j = 0; j < 30; j++)
     {
@@ -80,7 +76,6 @@ void Sensor::calibrateLine()
         for (int i = 0; i < 8; i++)
         {
             background_[i] = sensors[i];
-            // Serial.println("baca background " + String(sensors[i]));
         }
         delay(10);
     }
@@ -112,20 +107,6 @@ void Sensor::calibrateLine()
         delay(100);
     }
     interrupts();
-    if (DEBUG)
-    {
-        for (int i = 0; i < 8; i++)
-            // Serial.print("\t" + String(line_[i]));
-            // Serial.println();
-            // Serial.print("bg: ");
-            for (int i = 0; i < 8; i++)
-                // Serial.print("\t" + String(background_[i]));
-                // Serial.println();
-                for (int i = 0; i < 8; i++)
-                {
-                    // Serial.println("active : val > " + String((max_line[i] - min_line[i]) / 2 + min_line[i]));
-                }
-    }
 }
 
 bool Sensor::is_line_high()
@@ -156,7 +137,6 @@ bool Sensor::readlinebool(int index)
             return 1;
         else
             return 0;
-        // Serial.println("Not calibrated");
     }
 }
 
@@ -169,11 +149,6 @@ float Sensor::read_ultrasonic()
     delayMicroseconds(10);
     digitalWrite(Trig, LOW);
     float duration = pulseIn(Echo, HIGH);
-    float distance = duration / (34.1 * 2);
-    if (DEBUG)
-    {
-        // Serial.print("Distance: ");
-        // Serial.println(distance);
-    }
+    float distance = duration / (29.1 * 2);
     return distance;
 }

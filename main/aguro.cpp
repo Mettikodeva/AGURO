@@ -1,4 +1,46 @@
 #include "aguro.h"
+void (*resetFunc)(void) = 0;
+
+int Aguro::checkButton(){
+    uint32_t time = 0;
+        if(digitalRead(PushButton)){
+            if(this->button_pressed){
+                if (millis() - this->press_start > RESET_PRESS && this->button_flag == false)
+				{
+					this->button_flag = true;
+                    blink_led(5,300,CRGB(230,00,0));
+                    resetFunc();
+				}
+                else{
+                    time = millis()-this->press_start;
+                }
+            }
+            else{
+                this->button_pressed = true;
+                this->press_start = millis();
+            }
+            
+        }
+        else{
+            this->button_pressed = false;
+            this->button_flag = false;
+            
+        }
+
+        if(time > LONG_PRESS){
+            blink_led(5,300,CRGB(200,200,0));
+            this->stop();
+
+        }
+        else if(time > MEDIUM_PRESS){
+            blink_led(5,300,CRGB(150,250,0));
+
+        }
+        else if(time>SHORT_PRESS){
+            blink_led(5,300,CRGB(0,250,0));
+            
+        } 
+}
 
 bool Aguro::isStarted()
 {
@@ -7,6 +49,13 @@ bool Aguro::isStarted()
 void Aguro::stop()
 {
     this->start = false;
+    motor(0,0);
+    blink_led(1,100,CRGB(0,200,200));
+}
+
+void Aguro::_start(){
+    this->start = true;
+    this->updateSensor();
 }
 
 void Aguro::init(bool debug, Sensor *sensor)
@@ -29,92 +78,10 @@ void Aguro::init(bool debug, Sensor *sensor)
 void Aguro::centering()
 {
     updateSensor();
-    float dl, dr, out;
-    signed char err = 0;
-    static float I;
-    static signed char P, D, dErr, last_err;
-    float Kp = 3, Ki = 0.05, Kd = 2;
-    int max_speedl = 250;
-    int max_speedr = 250;
-    int counter = 0;
-    while (!sensors[3] && !sensors[4] && counter > 3)
-    {
-        updateSensor();
-        counter++;
-        if (sensors[3] == 1 && sensors[4] == 1)
-        {
-            break;
-            err = 0;
-            line_found = true;
-        }
-        else if (sensors[3] == 1 || sensors[4] == 1)
-        {
-            if (sensors[3] == 1)
-                err = -7;
-            else
-                err = 7;
-            line_found = true;
-        }
-
-        else if (sensors[0] == 1 || sensors[7] == 1)
-        {
-            if (sensors[0])
-                if (line_found == true)
-                    err = -60;
-                else
-                    err = 80;
-            else if (line_found == true)
-                err = 60;
-            else
-                err = -80;
-            line_found = true;
-        }
-
-        else if (sensors[1] == 1 || sensors[6] == 1)
-        {
-            if (sensors[1])
-                err = -40;
-            else
-                err = 40;
-            counter++;
-            line_found = true;
-        }
-
-        else if (sensors[2] == 1 || sensors[5] == 1)
-        {
-            if (sensors[2])
-                err = -25;
-            else
-                err = 25;
-            counter += 2;
-            line_found = true;
-        }
-
-        dErr = err - last_err;
-        if (line_found)
-            last_err = err;
-        P = Kp * err;
-        I += err;
-        D = Kd * dErr;
-        out = (float)P + (float)I * Ki + (float)D;
-        dl = (float)+out;
-        dr = (float)-out;
-        if (dl > max_speedl)
-            dl = max_speedl;
-        else if (dl < -max_speedl)
-            dl = -max_speedl;
-        if (dr > max_speedr)
-            dr = max_speedr;
-        else if (dr < -max_speedr)
-            dr = -max_speedr;
-        // Serial.print("*P" + String(err) + "," + String(dl) + "," + String(dr) + "#");
-        motor(dl, dr);
-    }
 }
 
 void Aguro::updateSensor()
 {
-    noInterrupts();
     // Serial.print("*S");
     for (int i = 0; i < 8; i++)
     {
@@ -132,7 +99,6 @@ void Aguro::updateSensor()
         Serial.print(String(sensors[i]) + ",");
     }
     // Serial.println("#");
-    interrupts();
 }
 
 // moving the robot
@@ -198,14 +164,14 @@ void Aguro::followUntil(char type, int speed)
         }
     }
 }
+
 void Aguro::traceLine(int speed)
 {
 
     float dl, dr, out;
     signed char err = 0;
-    static float I;
     static signed int P, D, dErr, last_err;
-    float Kp = 2.2, Ki = 0, Kd = 0.5;
+    float Kp = 2, Kd = 0;
     int base_speedl = speed;
     int base_speedr = speed;
     int max_speedl = 220;
@@ -236,8 +202,6 @@ void Aguro::traceLine(int speed)
     if (sensors[3] == 1 && sensors[4] == 1)
     {
         err = 0;
-        // base_speedl += 20;
-        // base_speedr +=20;
         line_found = true;
     }
     else if (sensors[3] == 1 || sensors[4] == 1)
@@ -246,8 +210,6 @@ void Aguro::traceLine(int speed)
             err = -10;
         else
             err = 10;
-        // base_speedl+=10;
-        // base_speedr+=10;
         line_found = true;
     }
     else if ((sensors[0] == 1 && sensors[1] == 1 && sensors[2] == 1) || (sensors[7] == 1 && sensors[6] == 1 && sensors[5] == 1))
@@ -270,8 +232,6 @@ void Aguro::traceLine(int speed)
             err = 80;
         else
             err = -80;
-        // base_speedl-=15;
-        // base_speedr-=15;
         line_found = true;
     }
 
@@ -312,9 +272,9 @@ void Aguro::traceLine(int speed)
     }
     P = Kp * err;
     // I += err;
-    // D = Kd*dErr;
+    D = Kd * dErr;
     // out = (float)P + (float)I*Ki+ (float)D;
-    out = (float)P;
+    out = (float)P + (float)D;
     dl = (float)base_speedl + out;
     dr = (float)base_speedr - out;
     if (dl > max_speedl)
@@ -333,19 +293,39 @@ void Aguro::stop_motor()
 {
     motor(0, 0);
 }
+void Aguro::right(int speed, int time){
+    uint32_t time_start = millis();
+    while(millis()-time_start< time){
+        motor(make_safe(speed),-make_safe(speed));
+    }
+    motor(0,0);
+    centering();
+}
+
+void Aguro::left(int speed, int time){
+    uint32_t time_start = millis();
+    while(millis()-time_start< time){
+        motor(-make_safe(speed),make_safe(speed));
+    }
+    motor(0,0);
+    centering();
+}
+
+void Aguro::mundur(int speed, int time){
+    uint32_t time_start = millis();
+    while(millis()-time_start< time){
+        motor(-make_safe(speed),-make_safe(speed));
+    }
+    motor(0,0);
+}
 
 void Aguro::motor(int dl, int dr)
 {
     float dist = s->read_ultrasonic();
-    if (DEBUG)
-    {
-        Serial.println("*D" + String(dist) + "#");
-    }
     if (dist < 25)
     {
         dl = 0;
         dr = 0;
-        // Serial.println("stopped, please move the obstacle!");
     }
     if (dl < 0)
     {
