@@ -59,7 +59,7 @@ void Sensor::calibrateLine()
     int line_[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     int background_[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     int counter = 0;
-    while (!digitalRead(PB))
+    while (!digitalRead(PushButton))
     {
         this->readsensorline();
         for (int i = 0; i < 8; i++)
@@ -70,7 +70,7 @@ void Sensor::calibrateLine()
         delay(10);
     }
     blink_led(3, 150, CRGB::Blue);
-    while (!digitalRead(PB))
+    while (!digitalRead(PushButton))
     {
         this->readsensorline();
         for (int i = 0; i < 8; i++)
@@ -113,7 +113,6 @@ bool Sensor::is_line_high()
 {
     return this->line_high;
 }
-
 bool Sensor::readlinebool(int index)
 {
     // IF THE SENSOR DETECT LINE THE VALUE WILL BE 1
