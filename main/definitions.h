@@ -1,8 +1,8 @@
-#include <FastLED.h>
-#include "Arduino.h"
 #ifndef definitions_h
 #define definitions_h
-
+#include <FastLED.h>
+#include "Arduino.h"
+#include <EEPROM.h>
 #define LED_PIN 12
 #define LED_TYPE WS2812B
 #define NUM_LEDS 8
@@ -20,7 +20,8 @@ extern void interruptSetup();
 extern void blink_led(int times, int delay_time, CRGB color);
 extern void led_running(int times, int delay_time, CRGB color);
 extern int make_safe(int val);
-
+extern int EEPROMReadInt(int address);
+extern void EEPROMWriteInt(int address, int value);
 static void (*__shortPressFunc)(void);
 // static void (*__mediumPressFunc)(void);
 static void (*__longPressFunc)(void);

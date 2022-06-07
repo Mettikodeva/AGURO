@@ -21,9 +21,8 @@ class Sensor
 {
     /*
     TODO:
-    1. save calibration to eeprom
-    2. read calibration from eeprom
-    3. add display function
+    1. save calibration to eeprom  // MAX_LINE WRITTEN FROM INDEX 0-7
+    2. read calibration from eeprom // MIN_LINE WRITTEN FROM INDEX 8-15
     */
 private:
     bool DEBUG;
@@ -33,6 +32,8 @@ private:
     int min_line[8];
     bool calibrated = false;
     bool line_high = false;
+    void save_calibration();
+    void read_calibration();
 
 public:
     bool is_line_high();

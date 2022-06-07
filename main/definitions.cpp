@@ -11,6 +11,21 @@ CRGB leds[NUM_LEDS] = {
     CRGB(0, 0, 0),
     CRGB(0, 0, 0),
 };
+
+int EEPROMReadInt(int address)
+{
+    long byte1 = EEPROM.read(address);
+    long byte2 = EEPROM.read(address + 1);
+    return ((byte2 << 0) & 0xFF) + ((byte1 << 8) & 0xFFFF);
+}
+
+void EEPROMWriteInt(int address, int value)
+{
+    byte byte1 = value >> 8;
+    byte byte2 = value & 0xFF;
+    EEPROM.write(address, byte1);
+    EEPROM.write(address + 1, byte2);
+}
 void interruptSetup()
 {
     // Initializes Timer2 to throw an interrupt every 2mS.
