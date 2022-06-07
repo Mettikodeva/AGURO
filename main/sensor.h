@@ -1,6 +1,7 @@
-#ifndef sensor_h
-#define sensor_h
-#include "Arduino.h"
+#ifndef SENSOR_H
+#define SENSOR_H
+#include "definitions.h"
+
 // sensors pin without mux or i2c  I/O expander
 
 #define sp1 A0
@@ -31,13 +32,17 @@ private:
     int max_line[8];
     int min_line[8];
     bool calibrated = false;
+    bool line_high = false;
 
 public:
+    bool is_line_high();
     void init(bool debug = true);
     // to calibrate the line sensor for readlinebool
     void calibrateLine();
-    char readsensorline(int sample_count = 4);
+    char readsensorline();
     // to read the line sensor, SENSOR SHOULD BE CALIBRATED!
+    //  1 = LINE FOUND
+    //  0 = LINE NOT FOUND
     bool readlinebool(int index);
     // read ultrasonic and return in cm
     float read_ultrasonic();

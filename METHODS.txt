@@ -1,0 +1,14 @@
+AGURO:
+    init(bool, Sensor*); -> void;
+    stop(); -> void;
+    isStarted(); -> bool;
+    centering(); -> void;
+    updateSensor(); -> void;
+    followUntil(char,int); -> void;
+
+SENSOR:
+    init(bool debug); -> void;
+    readsensorline(); -> char;
+    calibrateLine(); -> void;
+    
+

@@ -9,13 +9,13 @@ void setup()
 }
 void loop()
 {
-    digitalWrite(Trig, LOW);
+    digitalWrite(trig, LOW);
     delayMicroseconds(2);
-    digitalWrite(Trig, HIGH);
+    digitalWrite(trig, HIGH);
     delayMicroseconds(10);
-    digitalWrite(Trig, LOW);
+    digitalWrite(trig, LOW);
     float duration = pulseIn(echo, HIGH);
-    float distance = duration / 0.0343;
+    float distance = duration / (29.1*2);
     Serial.print("Distance: ");
     Serial.println(distance);
 }
