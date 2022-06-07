@@ -1,7 +1,7 @@
-#pragma once
 #ifndef AGURO_H
 #define AGURO_H
 #include "sensor.h"
+
 // Driver motor pin
 #define IN1 6  // left motor //PD6
 #define IN2 7  // PD7
@@ -17,7 +17,9 @@
 // followUntil type
 #define TJ 0 // T junction or 4 way
 #define FR 1 // Front Right turn
-#define FL 2 // Front Left turn 
+#define FL 2 // Front Left turn
+
+// #define LCD_ADDR 0x27
 // I2C pin
 // #define SDA A4
 // #define SCL A5
@@ -32,25 +34,23 @@ private:
     Sensor *s;
     bool line_found = false;
     int after_turn = 0;
-    bool button_flag = false;
-    bool button_pressed = false;
-    uint32_t press_start = 0;
+
 public:
-    int checkButton();
     void updateSensor();
     // initialize all the pin mode and interrupt and communication if present
     void init(bool debug = true, Sensor *sensor = NULL);
     // just to follow closed loop line without junction
     void traceLine(int speed);
     void followUntil(char type, int speed);
+
     void motor(int dl, int dr);
     bool isStarted();
     void centering();
     void stop();
     void _start();
     void stop_motor();
-    void left(int,int);
-    void right(int,int);
+    void left(int, int);
+    void right(int, int);
     void mundur(int, int);
 };
 

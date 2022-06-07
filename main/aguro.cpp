@@ -1,59 +1,19 @@
 #include "aguro.h"
-void (*resetFunc)(void) = 0;
-
-int Aguro::checkButton(){
-    uint32_t time = 0;
-        if(digitalRead(PushButton)){
-            if(this->button_pressed){
-                if (millis() - this->press_start > RESET_PRESS && this->button_flag == false)
-				{
-					this->button_flag = true;
-                    blink_led(5,300,CRGB(230,00,0));
-                    resetFunc();
-				}
-                else{
-                    time = millis()-this->press_start;
-                }
-            }
-            else{
-                this->button_pressed = true;
-                this->press_start = millis();
-            }
-            
-        }
-        else{
-            this->button_pressed = false;
-            this->button_flag = false;
-            
-        }
-
-        if(time > LONG_PRESS){
-            blink_led(5,300,CRGB(200,200,0));
-            this->stop();
-
-        }
-        else if(time > MEDIUM_PRESS){
-            blink_led(5,300,CRGB(150,250,0));
-
-        }
-        else if(time>SHORT_PRESS){
-            blink_led(5,300,CRGB(0,250,0));
-            
-        } 
-}
 
 bool Aguro::isStarted()
 {
     return this->start;
 }
+
 void Aguro::stop()
 {
     this->start = false;
-    motor(0,0);
-    blink_led(1,100,CRGB(0,200,200));
+    motor(0, 0);
+    blink_led(1, 100, CRGB(0, 200, 200));
 }
 
-void Aguro::_start(){
+void Aguro::_start()
+{
     this->start = true;
     this->updateSensor();
 }
@@ -67,7 +27,7 @@ void Aguro::init(bool debug, Sensor *sensor)
     pinMode(ENA, OUTPUT);
     pinMode(ENB, OUTPUT);
     pinMode(Relay, OUTPUT);
-    pinMode(PB, INPUT);
+    pinMode(PushButton, INPUT);
     digitalWrite(Relay, HIGH);
     s = sensor;
     s->init(debug);
@@ -293,30 +253,36 @@ void Aguro::stop_motor()
 {
     motor(0, 0);
 }
-void Aguro::right(int speed, int time){
+void Aguro::right(int speed, int time)
+{
     uint32_t time_start = millis();
-    while(millis()-time_start< time){
-        motor(make_safe(speed),-make_safe(speed));
+    while (millis() - time_start < time)
+    {
+        motor(make_safe(speed), -make_safe(speed));
     }
-    motor(0,0);
+    motor(0, 0);
     centering();
 }
 
-void Aguro::left(int speed, int time){
+void Aguro::left(int speed, int time)
+{
     uint32_t time_start = millis();
-    while(millis()-time_start< time){
-        motor(-make_safe(speed),make_safe(speed));
+    while (millis() - time_start < time)
+    {
+        motor(-make_safe(speed), make_safe(speed));
     }
-    motor(0,0);
+    motor(0, 0);
     centering();
 }
 
-void Aguro::mundur(int speed, int time){
+void Aguro::mundur(int speed, int time)
+{
     uint32_t time_start = millis();
-    while(millis()-time_start< time){
-        motor(-make_safe(speed),-make_safe(speed));
+    while (millis() - time_start < time)
+    {
+        motor(-make_safe(speed), -make_safe(speed));
     }
-    motor(0,0);
+    motor(0, 0);
 }
 
 void Aguro::motor(int dl, int dr)
