@@ -47,7 +47,7 @@ void Sensor::calibrateLine()
                 leds[i] = CRGB(0, 0, 0);
                 FastLED.show();
             }
-            delay(3);
+            // delay(3);
             // FastLED.show();
         }
         shift++;

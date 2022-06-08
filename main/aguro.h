@@ -33,7 +33,8 @@ private:
     bool sensors[8];
     Sensor *s;
     bool line_found = false;
-    int after_turn = 0;
+    bool garisKiri = false;
+    bool garisKanan = false;
 
 public:
     void updateSensor();

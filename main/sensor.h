@@ -21,8 +21,8 @@ class Sensor
 {
     /*
     TODO:
-    1. save calibration to eeprom  // MAX_LINE WRITTEN FROM INDEX 0-7
-    2. read calibration from eeprom // MIN_LINE WRITTEN FROM INDEX 8-15
+    1. save calibration to eeprom  // MAX_LINE WRITTEN FROM INDEX 0-7(times sizeof(int))
+    2. read calibration from eeprom // MIN_LINE WRITTEN FROM INDEX 8-15(times sizeof(int))
     */
 private:
     bool DEBUG;

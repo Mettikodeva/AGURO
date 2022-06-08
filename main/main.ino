@@ -22,7 +22,7 @@ static void longPress()
 
 void setup()
 {
-    Serial.begin(115200);
+    // Serial.begin(115200);
     myPB.attachLongPress(longPress);
     myPB.attachShortPress(shortPress);
     myPB.start();
@@ -33,4 +33,13 @@ void setup()
 
 void loop()
 {
+    aguro.updateSensor();
+    aguro.centering();
+    aguro.followUntil(FR, 120);
+    aguro.right(120, 200);
+    for (int i = 0; i < 3; i++)
+        aguro.followUntil(TJ, 120);
+    aguro.followUntil(FL, 120);
+    aguro.left(120, 200);
+    // aguro.backward(120, 200);
 }
