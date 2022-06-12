@@ -26,12 +26,12 @@ char Sensor::readsensorline()
     sensors[5] = analogRead(sp6);
     sensors[6] = analogRead(sp7);
     sensors[7] = analogRead(sp8);
+    Serial.println("reading sensor");
     interrupts();
 }
 
 void Sensor::calibrateLine()
 {
-    cli();
     int shift = 0;
     for (int j = 0; j < 30; j++)
     {
@@ -54,6 +54,7 @@ void Sensor::calibrateLine()
         if (shift >= NUM_LEDS + 2)
             shift = 0;
     }
+    noInterrupts();
     digitalWrite(LED_BUILTIN, HIGH);
     // read line first, then read the background
     int line_[8] = {0, 0, 0, 0, 0, 0, 0, 0};
@@ -98,7 +99,7 @@ void Sensor::calibrateLine()
             min_line[i] = line_[i];
         }
     }
-    save_calibration();
+    // save_calibration();
     digitalWrite(LED_BUILTIN, LOW);
     for (int i = 0; i < 8; i++)
     {
@@ -106,7 +107,7 @@ void Sensor::calibrateLine()
         FastLED.show();
         delay(100);
     }
-    sei();
+    interrupts();
 }
 
 void Sensor::save_calibration()

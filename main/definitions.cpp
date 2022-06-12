@@ -29,15 +29,15 @@ void EEPROMWriteInt(int address, int value)
 void interruptSetup()
 {
     // Initializes Timer2 to throw an interrupt every 2mS.
-    TCCR0A = 0b00100010; // DISABLE PWM ON DIGITAL PINS 3 AND 11, AND GO INTO CTC MODE
-    TCCR0B = 0b00000101; // DON'T FORCE COMPARE, 1024 PRESCALER
-    OCR0A = 194;         // SET THE TOP OF THE COUNT TO 194 FOR 40Hz SAMPLE RATE
-    TIMSK0 = 0b00000011; // ENABLE INTERRUPT ON MATCH BETWEEN TIMER2 AND OCR2A
-    TIFR0 = 0b00000011;  // CLEAR THE INTERRUPT FLAG
-    sei();               // MAKE SURE GLOBAL INTERRUPTS ARE ENABLED
+    // TCCR0A = 0b00100010; // DISABLE PWM ON DIGITAL PINS 3 AND 11, AND GO INTO CTC MODE
+    // TCCR0B = 0b00000101; // DON'T FORCE COMPARE, 1024 PRESCALER
+    // OCR0A = 194;         // SET THE TOP OF THE COUNT TO 194 FOR 40Hz SAMPLE RATE
+    // TIMSK0 = 0b00000011; // ENABLE INTERRUPT ON MATCH BETWEEN TIMER2 AND OCR2A
+    // TIFR0 = 0b00000011;  // CLEAR THE INTERRUPT FLAG
+    // sei();               // MAKE SURE GLOBAL INTERRUPTS ARE ENABLED
 }
 
-extern void blink_led(int times, int delay_time, CRGB color)
+void blink_led(int times, int delay_time, CRGB color)
 {
     for (int i = 0; i < times * 2; i++)
     {
@@ -57,7 +57,7 @@ extern void blink_led(int times, int delay_time, CRGB color)
     }
 }
 
-extern void led_running(int times, int delay_time, CRGB color)
+void led_running(int times, int delay_time, CRGB color)
 {
     int shift = 0;
     for (int j = 0; j < times * 10; j++)
@@ -82,7 +82,7 @@ extern void led_running(int times, int delay_time, CRGB color)
             shift = 0;
     }
 }
-extern int make_safe(int val)
+int make_safe(int val)
 {
     if (val > 255)
         return 255;
@@ -171,7 +171,7 @@ void Button::attachLongPress(void (*f)(void))
 }
 
 Button myPB = Button();
-ISR(TIMER0_COMPA_vect)
-{
-    myPB.update();
-}
+// ISR(TIMER0_COMPA_vect)
+// {
+//     myPB.update();
+// }

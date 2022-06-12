@@ -30,19 +30,23 @@ void Aguro::init(bool debug, Sensor *sensor)
     pinMode(PushButton, INPUT);
     digitalWrite(Relay, HIGH);
     s = sensor;
+    Serial.println("init sensor");
     s->init(debug);
     this->DEBUG = debug;
+    Serial.println("calibrating");
     s->calibrateLine();
+    Serial.println("calibration finish");
 }
 
 void Aguro::centering()
 {
     updateSensor();
+    // if()
 }
 
 void Aguro::updateSensor()
 {
-    // Serial.print("*S");
+    Serial.print("nilai sensor");
     for (int i = 0; i < 8; i++)
     {
         sensors[i] = s->readlinebool(i);
@@ -56,9 +60,9 @@ void Aguro::updateSensor()
             leds[i] = CRGB(0, 255, 0);
             FastLED.show();
         }
-        Serial.print(String(sensors[i]) + ",");
+        Serial.print(String(sensors[i]) + "  ");
     }
-    // Serial.println("#");
+    Serial.println("");
 }
 
 // moving the robot
@@ -68,7 +72,22 @@ void Aguro::followUntil(char type, int speed)
     int pass_line = 10;
     if (type == TJ)
     {
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 10; i++)
+        {
+            updateSensor();
+            while (sensors[0] || sensors[7])
+            {
+                traceLine(speed);
+                updateSensor();
+                if (!sensors[0] && !sensors[7])
+                    found_garis = true;
+                else
+                    found_garis = false;
+            }
+            if (!found_garis)
+                break;
+        }
+        for (int i = 0; i < pass_line; i++)
         {
             updateSensor();
             while (!sensors[0] || !sensors[7])
@@ -83,35 +102,35 @@ void Aguro::followUntil(char type, int speed)
             if (found_garis)
                 break;
         }
-        for (int i = 0; i < pass_line; i++)
-        {
-            updateSensor();
-            while (sensors[0] || sensors[7])
-            {
-                traceLine(speed);
-                updateSensor();
-                if (!sensors[0] && !sensors[7])
-                    found_garis = true;
-                else
-                    found_garis = false;
-            }
-            if (found_garis)
-                break;
-        }
-        for (int i = 0; i < 10; i++)
-        {
-            updateSensor();
-            while (sensors[0] || sensors[7])
-            {
-                updateSensor();
-                motor(speed, speed);
-            }
-        }
+        // for (int i = 0; i < 10; i++)
+        // {
+        //     updateSensor();
+        //     // while (sensors[0] || sensors[7])
+        //     // {
+        //         updateSensor();
+        //         motor(speed, speed);
+        //     // }
+        // }
     }
 
     else if (type == FR)
     {
         for (int i = 0; i < 100; i++)
+        {
+            updateSensor();
+            while (sensors[6] || sensors[7])
+            {
+                traceLine(speed);
+                updateSensor();
+                if (!sensors[6] && !sensors[7])
+                    found_garis = true;
+                else
+                    found_garis = false;
+            }
+            if (!found_garis)
+                break;
+        }
+        for (int i = 0; i < pass_line; i++)
         {
             updateSensor();
             while (!sensors[6] || !sensors[7])
@@ -126,46 +145,31 @@ void Aguro::followUntil(char type, int speed)
             if (found_garis)
                 break;
         }
-        for (int i = 0; i < pass_line; i++)
-        {
-            updateSensor();
-            while (sensors[6] || sensors[7])
-            {
-                traceLine(speed);
-                updateSensor();
-                if (!sensors[6] && !sensors[7])
-                    found_garis = true;
-                else
-                    found_garis = false;
-            }
-            if (found_garis)
-                break;
-        }
-        for (int i = 0; i < 10; i++)
-        {
-            updateSensor();
-            while (sensors[6] || sensors[7])
-            {
-                updateSensor();
-                motor(speed, speed);
-            }
-        }
+        // for (int i = 0; i < 10; i++)
+        // {
+        //     updateSensor();
+        //     // while (sensors[6] || sensors[7])
+        //     // {
+        //         updateSensor();
+        //         motor(speed, speed);
+        //     // }
+        // }
     }
     else if (type == FL)
     {
         for (int i = 0; i < 100; i++)
         {
             updateSensor();
-            while (!sensors[0] || !sensors[1])
+            while (sensors[0] || sensors[1])
             {
                 traceLine(speed);
                 updateSensor();
-                if (sensors[0] && sensors[1])
+                if (!sensors[0] && !sensors[1])
                     found_garis = true;
                 else
                     found_garis = false;
             }
-            if (found_garis)
+            if (!found_garis)
                 break;
         }
         for (int i = 0; i < pass_line; i++)
@@ -183,16 +187,17 @@ void Aguro::followUntil(char type, int speed)
             if (found_garis)
                 break;
         }
-        for (int i = 0; i < 10; i++)
-        {
-            updateSensor();
-            while (sensors[0] || sensors[1])
-            {
-                updateSensor();
-                motor(speed, speed);
-            }
-        }
+        // for (int i = 0; i < 10; i++)
+        // {
+        //     updateSensor();
+        //     // while (sensors[0] || sensors[1])
+        //     // {
+        //         updateSensor();
+        //         motor(speed, speed);
+        //     // }
+        // }
     }
+    motor(0,0);
 }
 
 void Aguro::traceLine(int speed)
@@ -201,11 +206,11 @@ void Aguro::traceLine(int speed)
     float dl, dr, out;
     signed char err = 0;
     static signed int P, D, dErr, last_err;
-    float Kp = 1.2, Kd = 0;
+    float Kp = 1.5, Kd = 0;
     int base_speedl = speed;
     int base_speedr = speed;
-    int max_speedl = 200;
-    int max_speedr = 200;
+    int max_speedl = 250;
+    int max_speedr = 250;
     bool flag_dir = false;
 
     updateSensor();
