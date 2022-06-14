@@ -17,7 +17,7 @@ void Sensor::init(bool debug)
 
 char Sensor::readsensorline()
 {
-    noInterrupts();
+    // noInterrupts();
     sensors[0] = analogRead(sp1);
     sensors[1] = analogRead(sp2);
     sensors[2] = analogRead(sp3);
@@ -26,8 +26,8 @@ char Sensor::readsensorline()
     sensors[5] = analogRead(sp6);
     sensors[6] = analogRead(sp7);
     sensors[7] = analogRead(sp8);
-    Serial.println("reading sensor");
-    interrupts();
+    // Serial.println("reading sensor");
+    // interrupts();
 }
 
 void Sensor::calibrateLine()
@@ -54,13 +54,15 @@ void Sensor::calibrateLine()
         if (shift >= NUM_LEDS + 2)
             shift = 0;
     }
-    noInterrupts();
+    // noInterrupts();
     digitalWrite(LED_BUILTIN, HIGH);
     // read line first, then read the background
     int line_[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     int background_[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     int counter = 0;
-    while (!digitalRead(PushButton))
+    blink_led(3,100, CRGB::Red);
+    uint32_t start = millis();
+    while (millis() - start < 300)
     {
         this->readsensorline();
         for (int i = 0; i < 8; i++)
@@ -71,7 +73,9 @@ void Sensor::calibrateLine()
         delay(10);
     }
     blink_led(3, 150, CRGB::Blue);
-    while (!digitalRead(PushButton))
+    start = millis();
+    blink_led(3, 50, CRGB::Red);
+    while (millis()-start<300)
     {
         this->readsensorline();
         for (int i = 0; i < 8; i++)
@@ -107,7 +111,7 @@ void Sensor::calibrateLine()
         FastLED.show();
         delay(100);
     }
-    interrupts();
+    // interrupts();
 }
 
 void Sensor::save_calibration()
