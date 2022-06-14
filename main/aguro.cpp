@@ -27,15 +27,13 @@ void Aguro::init(bool debug, Sensor *sensor)
     pinMode(ENA, OUTPUT);
     pinMode(ENB, OUTPUT);
     pinMode(Relay, OUTPUT);
-    pinMode(PushButton, INPUT);
     digitalWrite(Relay, HIGH);
     s = sensor;
-    Serial.println("init sensor");
     s->init(debug);
     this->DEBUG = debug;
-    Serial.println("calibrating");
-    s->calibrateLine();
-    Serial.println("calibration finish");
+    // Serial.println("calibrating");
+    // s->calibrateLine();
+    // Serial.println("calibration finish");
 }
 
 void Aguro::centering()
@@ -102,15 +100,6 @@ void Aguro::followUntil(char type, int speed)
             if (found_garis)
                 break;
         }
-        // for (int i = 0; i < 10; i++)
-        // {
-        //     updateSensor();
-        //     // while (sensors[0] || sensors[7])
-        //     // {
-        //         updateSensor();
-        //         motor(speed, speed);
-        //     // }
-        // }
     }
 
     else if (type == FR)
@@ -145,15 +134,6 @@ void Aguro::followUntil(char type, int speed)
             if (found_garis)
                 break;
         }
-        // for (int i = 0; i < 10; i++)
-        // {
-        //     updateSensor();
-        //     // while (sensors[6] || sensors[7])
-        //     // {
-        //         updateSensor();
-        //         motor(speed, speed);
-        //     // }
-        // }
     }
     else if (type == FL)
     {
@@ -187,15 +167,6 @@ void Aguro::followUntil(char type, int speed)
             if (found_garis)
                 break;
         }
-        // for (int i = 0; i < 10; i++)
-        // {
-        //     updateSensor();
-        //     // while (sensors[0] || sensors[1])
-        //     // {
-        //         updateSensor();
-        //         motor(speed, speed);
-        //     // }
-        // }
     }
     motor(0,0);
 }

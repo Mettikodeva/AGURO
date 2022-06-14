@@ -10,9 +10,7 @@
 #define IN4 9  // PB1
 #define ENB 10 // PB3
 
-#define PushButton 13 // push button //PCINT0 //should be input pullup
-
-#define Relay 2 // relay for controling electromagnet //PD3
+#define Relay 13 // relay for controling electromagnet
 
 // followUntil type
 #define TJ 0 // T junction or 4 way
@@ -25,8 +23,7 @@
 // #define SCL A5
 
 // API for the robot methods
-class Aguro
-{
+class Aguro{
 private:
     bool start = true;
     bool DEBUG = true;

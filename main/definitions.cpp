@@ -26,6 +26,7 @@ void EEPROMWriteInt(int address, int value)
     EEPROM.write(address, byte1);
     EEPROM.write(address + 1, byte2);
 }
+
 void interruptSetup()
 {
     // Initializes Timer2 to throw an interrupt every 2mS.
@@ -91,87 +92,87 @@ int make_safe(int val)
     else
         return val;
 }
-Button::Button()
-{
-    interruptSetup();
-    cli();
-}
-void Button::start()
-{
-    sei();
-}
-void Button::stop()
-{
-    cli();
-}
-void Button::update()
-{
-    uint32_t time = 0;
-    if (digitalRead(PushButton))
-    {
-        if (button_pressed)
-        {
-            uint32_t temp = millis();
-            if (temp - press_start > RESET_PRESS && button_flag == false)
-            {
-                button_flag = true;
-                blink_led(5, 300, CRGB(230, 00, 0));
-                resetFunc();
-            }
-            else
-            {
-                time = temp - press_start;
-            }
-        }
-        else
-        {
-            button_pressed = true;
-            press_start = millis();
-        }
-    }
-    else
-    {
-        button_pressed = false;
-        button_flag = false;
-        short_pressed = false;
-        // medium_pressed = false;
-        long_pressed = false;
-    }
-
-    if (time > LONG_PRESS)
-    {
-        blink_led(5, 300, CRGB(200, 200, 0));
-        __longPressFunc();
-        long_pressed = true;
-    }
-    else if (time > MEDIUM_PRESS)
-    {
-        // blink_led(5, 300, CRGB(150, 250, 0));
-        // __mediumPressFunc();
-        // medium_pressed = true;
-    }
-    else if (time > SHORT_PRESS)
-    {
-        blink_led(5, 300, CRGB(0, 250, 0));
-        __shortPressFunc();
-        short_pressed = true;
-    }
-}
-void Button::attachShortPress(void (*f)(void))
-{
-    __shortPressFunc = f;
-}
-// void Button::attachMediumPress(void (*f)())
+// Button::Button()
 // {
-//     __mediumPressFunc = f;
+//     interruptSetup();
+//     cli();
 // }
-void Button::attachLongPress(void (*f)(void))
-{
-    __longPressFunc = f;
-}
-
-Button myPB = Button();
-// ISR(TIMER0_COMPA_vect)
+// void Button::start()
 // {
-//     myPB.update();
+//     sei();
 // }
+// void Button::stop()
+// {
+//     cli();
+// }
+// void Button::update()
+// {
+//     uint32_t time = 0;
+//     if (digitalRead(PushButton))
+//     {
+//         if (button_pressed)
+//         {
+//             uint32_t temp = millis();
+//             if (temp - press_start > RESET_PRESS && button_flag == false)
+//             {
+//                 button_flag = true;
+//                 blink_led(5, 300, CRGB(230, 00, 0));
+//                 resetFunc();
+//             }
+//             else
+//             {
+//                 time = temp - press_start;
+//             }
+//         }
+//         else
+//         {
+//             button_pressed = true;
+//             press_start = millis();
+//         }
+//     }
+//     else
+//     {
+//         button_pressed = false;
+//         button_flag = false;
+//         short_pressed = false;
+//         // medium_pressed = false;
+//         long_pressed = false;
+//     }
+
+//     if (time > LONG_PRESS)
+//     {
+//         blink_led(5, 300, CRGB(200, 200, 0));
+//         __longPressFunc();
+//         long_pressed = true;
+//     }
+//     else if (time > MEDIUM_PRESS)
+//     {
+//         // blink_led(5, 300, CRGB(150, 250, 0));
+//         // __mediumPressFunc();
+//         // medium_pressed = true;
+//     }
+//     else if (time > SHORT_PRESS)
+//     {
+//         blink_led(5, 300, CRGB(0, 250, 0));
+//         __shortPressFunc();
+//         short_pressed = true;
+//     }
+// }
+// void Button::attachShortPress(void (*f)(void))
+// {
+//     __shortPressFunc = f;
+// }
+// // void Button::attachMediumPress(void (*f)())
+// // {
+// //     __mediumPressFunc = f;
+// // }
+// void Button::attachLongPress(void (*f)(void))
+// {
+//     __longPressFunc = f;
+// }
+
+// // Button myPB = Button();
+// // ISR(TIMER0_COMPA_vect)
+// // {
+// //     myPB.update();
+// // }

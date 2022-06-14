@@ -12,6 +12,7 @@
 #define sp6 A5
 #define sp7 A6
 #define sp8 A7
+#define PushButton 3
 
 // ultrasonic pin
 #define Trig 5 // PD5 //output
