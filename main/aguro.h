@@ -32,7 +32,7 @@ private:
     bool line_found = false;
     bool garisKiri = false;
     bool garisKanan = false;
-
+    bool magnet_state = false;
 public:
     void updateSensor();
     // initialize all the pin mode and interrupt and communication if present
@@ -40,7 +40,7 @@ public:
     // just to follow closed loop line without junction
     void traceLine(int speed);
     void followUntil(char type, int speed);
-
+    void magnet(bool);
     void motor(int dl, int dr);
     bool isStarted();
     void centering();
