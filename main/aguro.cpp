@@ -17,7 +17,21 @@ void Aguro::_start()
     this->start = true;
     this->updateSensor();
 }
-
+void Aguro::setPID(int P)
+{
+    this->Kp = P;
+}
+void Aguro::setPID(int P, int D)
+{
+    this->Kp = P;
+    this->Kd = D;
+}
+void Aguro::setPID(int P, int I, int D)
+{
+    this->Kp = P;
+    this->Ki = I;
+    this->Kd = D;
+}
 void Aguro::init(bool debug, Sensor *sensor)
 {
     pinMode(IN1, OUTPUT);
@@ -39,7 +53,6 @@ void Aguro::init(bool debug, Sensor *sensor)
 void Aguro::centering()
 {
     updateSensor();
-    // if()
 }
 
 void Aguro::updateSensor()
@@ -105,7 +118,7 @@ void Aguro::followUntil(char type, int speed)
             updateSensor();
             while (sensors[0] || sensors[7])
             {
-                traceLine(speed+0);
+                traceLine(speed + 0);
                 updateSensor();
                 if (!sensors[0] && !sensors[7])
                     found_garis = false;
@@ -141,7 +154,7 @@ void Aguro::followUntil(char type, int speed)
             {
                 traceLine(speed);
                 updateSensor();
-                if (sensors[0] || sensors[1] &&!sensors[6])
+                if (sensors[0] || sensors[1] && !sensors[6])
                     found_garis = true;
                 else
                     found_garis = false;
@@ -149,22 +162,22 @@ void Aguro::followUntil(char type, int speed)
             if (found_garis)
                 break;
         }
-    
+
         for (int i = 0; i < 10; i++)
+        {
+            updateSensor();
+            while (sensors[0] && sensors[1])
             {
+                traceLine(speed);
                 updateSensor();
-                while (sensors[0] && sensors[1])
-                {
-                    traceLine(speed);
-                    updateSensor();
-                    if (!sensors[0] && !sensors[1])
-                        found_garis = false;
-                    else
-                        found_garis = true;
-                }
-                if (!found_garis)
-                    break;
+                if (!sensors[0] && !sensors[1])
+                    found_garis = false;
+                else
+                    found_garis = true;
             }
+            if (!found_garis)
+                break;
+        }
     }
     else if (type == FL)
     {
@@ -200,31 +213,186 @@ void Aguro::followUntil(char type, int speed)
                 break;
         }
         for (int i = 0; i < 10; i++)
+        {
+            updateSensor();
+            while (sensors[0] && sensors[1])
             {
+                traceLine(speed);
                 updateSensor();
-                while (sensors[0] && sensors[1])
-                {
-                    traceLine(speed);
-                    updateSensor();
-                    if (!sensors[0] && !sensors[1])
-                        found_garis = false;
-                    else
-                        found_garis = true;
-                }
-                if (!found_garis)
-                    break;
+                if (!sensors[0] && !sensors[1])
+                    found_garis = false;
+                else
+                    found_garis = true;
             }
+            if (!found_garis)
+                break;
+        }
     }
-    motor(0,0);
+    motor(0, 0);
 }
 
-void Aguro::traceLine(int speed)
+void Aguro::followUntil(char type, int speed, int stop_delay)
+{
+    bool found_garis = false;
+    int pass_line = 10;
+    if (type == TJ)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            updateSensor();
+            while (sensors[0] || sensors[7])
+            {
+                traceLine(speed);
+                updateSensor();
+                if (!sensors[0] && !sensors[7])
+                    found_garis = false;
+                else
+                    found_garis = true;
+            }
+            if (!found_garis)
+                break;
+        }
+        for (int i = 0; i < pass_line; i++)
+        {
+            updateSensor();
+            while (!sensors[0] || !sensors[7])
+            {
+                traceLine(speed);
+                updateSensor();
+                if (sensors[0] && sensors[7])
+                    found_garis = true;
+                else
+                    found_garis = false;
+            }
+            if (found_garis)
+                break;
+        }
+        for (int i = 0; i < 10; i++)
+        {
+            updateSensor();
+            while (sensors[0] || sensors[7])
+            {
+                traceLine(speed + 0);
+                updateSensor();
+                if (!sensors[0] && !sensors[7])
+                    found_garis = false;
+                else
+                    found_garis = true;
+            }
+            if (!found_garis)
+                break;
+        }
+    }
+
+    else if (type == FR)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            updateSensor();
+            while (sensors[0] && sensors[1])
+            {
+                traceLine(speed);
+                updateSensor();
+                if (!sensors[0] && !sensors[1])
+                    found_garis = false;
+                else
+                    found_garis = true;
+            }
+            if (!found_garis)
+                break;
+        }
+        for (int i = 0; i < pass_line; i++)
+        {
+            updateSensor();
+            while (!sensors[0] || !sensors[1] && sensors[6])
+            {
+                traceLine(speed);
+                updateSensor();
+                if (sensors[0] || sensors[1] && !sensors[6])
+                    found_garis = true;
+                else
+                    found_garis = false;
+            }
+            if (found_garis)
+                break;
+        }
+
+        for (int i = 0; i < 10; i++)
+        {
+            updateSensor();
+            while (sensors[0] && sensors[1])
+            {
+                traceLine(speed);
+                updateSensor();
+                if (!sensors[0] && !sensors[1])
+                    found_garis = false;
+                else
+                    found_garis = true;
+            }
+            if (!found_garis)
+                break;
+        }
+    }
+    else if (type == FL)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            updateSensor();
+            while (sensors[6] && sensors[7])
+            {
+                traceLine(speed);
+                updateSensor();
+                if (!sensors[6] && !sensors[7])
+                    found_garis = false;
+                else
+                    found_garis = true;
+            }
+            if (!found_garis)
+                break;
+        }
+
+        for (int i = 0; i < pass_line; i++)
+        {
+            updateSensor();
+            while (!sensors[7] || !sensors[6] && !sensors[1])
+            {
+                traceLine(speed);
+                updateSensor();
+                if (sensors[7] || sensors[6] && sensors[1])
+                    found_garis = true;
+                else
+                    found_garis = false;
+            }
+            if (found_garis)
+                break;
+        }
+        for (int i = 0; i < 10; i++)
+        {
+            updateSensor();
+            while (sensors[0] && sensors[1])
+            {
+                traceLine(speed);
+                updateSensor();
+                if (!sensors[0] && !sensors[1])
+                    found_garis = false;
+                else
+                    found_garis = true;
+            }
+            if (!found_garis)
+                break;
+        }
+    }
+    delay(stop_delay);
+    motor(0, 0);
+}
+
+void Aguro::traceLine(int speed, bool use_I)
 {
 
     float dl, dr, out;
     signed char err = 0;
-    static signed int P, D, dErr, last_err;
-    float Kp = 1.53, Kd = 0;
+    float P, I, D;
+    static signed int dErr, last_err;
     int base_speedl = speed;
     int base_speedr = speed;
     int max_speedl = 230;
@@ -233,7 +401,7 @@ void Aguro::traceLine(int speed)
 
     updateSensor();
     //    0 1  2  3 4  5      6 7
-    
+
     if (sensors[3] == 1 && sensors[4] == 1)
     {
         err = 0;
@@ -321,7 +489,17 @@ void Aguro::traceLine(int speed)
     }
     P = Kp * err;
     D = Kd * dErr;
-    out = (float)P + (float)D;
+
+    if (I)
+    {
+        I += Ki * err;
+        out = (float)P + (float)I + (float)D;
+    }
+    else
+    {
+        out = (float)P + (float)D;
+    }
+
     dl = (float)base_speedl + out;
     dr = (float)base_speedr - out;
 
@@ -345,7 +523,7 @@ void Aguro::right(int speed, int time)
     uint32_t time_start = millis();
     while (millis() - time_start < time)
     {
-        motor(make_safe(speed), make_safe((int)speed/5));
+        motor(make_safe(speed), make_safe((int)speed / 5));
     }
     motor(0, 0);
     centering();
@@ -356,20 +534,24 @@ void Aguro::left(int speed, int time)
     uint32_t time_start = millis();
     while (millis() - time_start < time)
     {
-        if(sensors[3]||sensors[2]){
-            
+        if (sensors[3] || sensors[2])
+        {
+
             break;
         }
-        motor(-make_safe(0), make_safe(speed+10));
+        motor(-make_safe(0), make_safe(speed + 10));
     }
-    while(1){
+    while (1)
+    {
         updateSensor();
-        if(sensors[3]||sensors[2]){
-            
+        if (sensors[3] || sensors[2])
+        {
+
             break;
         }
-        else{
-            motor(-make_safe(0), make_safe(speed-10));
+        else
+        {
+            motor(-make_safe(0), make_safe(speed - 10));
         }
     }
     // motor(0, 0);
@@ -388,111 +570,111 @@ void Aguro::mundur(int speed, int time)
     int max_speedr = 210;
     bool flag_dir = false;
     uint16_t start_time;
-    while(millis() - start_time > time)
+    while (millis() - start_time > time)
     {
-    updateSensor();
-    //    0 1  2  3 4  5  6 7
-    
-    if (sensors[3] == 1 && sensors[4] == 1)
-    {
-        err = 0;
-        line_found = true;
-    }
-    else if (sensors[3] == 1 || sensors[4] == 1)
-    {
-        if (sensors[3] == 1)
-            err = -5;
-        else
-            err = 5;
-        line_found = true;
-    }
-    else if ((sensors[0] && sensors[1] && sensors[2]) || (sensors[7] && sensors[6] && sensors[5]))
-    {
-        if (sensors[0] && sensors[1] && sensors[2])
+        updateSensor();
+        //    0 1  2  3 4  5  6 7
+
+        if (sensors[3] == 1 && sensors[4] == 1)
         {
-            garisKiri = true;
-            garisKanan = false;
-        }
-        else if (sensors[7] && sensors[6] && sensors[5])
-        {
-            garisKiri = false;
-            garisKanan = true;
-        }
-        line_found = true;
-    }
-    else if ((sensors[0] == 1 && sensors[1] == 1 && sensors[2] == 1) || (sensors[7] == 1 && sensors[6] == 1 && sensors[5] == 1))
-    {
-        if (sensors[0] == 1)
-            err = -50;
-        else
-            err = 50;
-        line_found = true;
-    }
-
-    else if (sensors[0] == 1 || sensors[7] == 1)
-    {
-        if (sensors[0])
-            if (line_found == true)
-                err = -30;
-            else
-                err = 30;
-        else if (line_found == true)
-            err = 30;
-        else
-            err = -30;
-        line_found = true;
-    }
-
-    else if (sensors[1] == 1 || sensors[6] == 1)
-    {
-        if (sensors[1])
-            err = -15;
-        else
-            err = 15;
-        line_found = true;
-    }
-
-    else if (sensors[2] == 1 || sensors[5] == 1)
-    {
-        if (sensors[2])
-            err = -10;
-        else
-            err = 10;
-        base_speedl;
-        base_speedr;
-        line_found = true;
-    }
-    else
-    {
-        if (last_err > 0)
-            err = -last_err;
-        else if (last_err < 0)
-            err = last_err;
-        else
             err = 0;
-        line_found = false;
-    }
+            line_found = true;
+        }
+        else if (sensors[3] == 1 || sensors[4] == 1)
+        {
+            if (sensors[3] == 1)
+                err = -5;
+            else
+                err = 5;
+            line_found = true;
+        }
+        else if ((sensors[0] && sensors[1] && sensors[2]) || (sensors[7] && sensors[6] && sensors[5]))
+        {
+            if (sensors[0] && sensors[1] && sensors[2])
+            {
+                garisKiri = true;
+                garisKanan = false;
+            }
+            else if (sensors[7] && sensors[6] && sensors[5])
+            {
+                garisKiri = false;
+                garisKanan = true;
+            }
+            line_found = true;
+        }
+        else if ((sensors[0] == 1 && sensors[1] == 1 && sensors[2] == 1) || (sensors[7] == 1 && sensors[6] == 1 && sensors[5] == 1))
+        {
+            if (sensors[0] == 1)
+                err = -50;
+            else
+                err = 50;
+            line_found = true;
+        }
 
-    dErr = err - last_err;
-    if (line_found)
-    {
-        last_err = err;
-    }
-    P = Kp * err;
-    D = Kd * dErr;
-    out = (float)P + (float)D;
-    dl = (float)base_speedl - out;
-    dr = (float)base_speedr + out;
+        else if (sensors[0] == 1 || sensors[7] == 1)
+        {
+            if (sensors[0])
+                if (line_found == true)
+                    err = -30;
+                else
+                    err = 30;
+            else if (line_found == true)
+                err = 30;
+            else
+                err = -30;
+            line_found = true;
+        }
 
-    if (dl > max_speedl)
-        dl = max_speedl;
-    else if (dl < -max_speedl)
-        dl = -max_speedl;
-    if (dr > max_speedr)
-        dr = max_speedr;
-    else if (dr < -max_speedr)
-        dr = -max_speedr;
-    motor(-dl, -dr);
+        else if (sensors[1] == 1 || sensors[6] == 1)
+        {
+            if (sensors[1])
+                err = -15;
+            else
+                err = 15;
+            line_found = true;
+        }
+
+        else if (sensors[2] == 1 || sensors[5] == 1)
+        {
+            if (sensors[2])
+                err = -10;
+            else
+                err = 10;
+            base_speedl;
+            base_speedr;
+            line_found = true;
+        }
+        else
+        {
+            if (last_err > 0)
+                err = -last_err;
+            else if (last_err < 0)
+                err = last_err;
+            else
+                err = 0;
+            line_found = false;
+        }
+
+        dErr = err - last_err;
+        if (line_found)
+        {
+            last_err = err;
+        }
+        P = Kp * err;
+        D = Kd * dErr;
+        out = (float)P + (float)D;
+        dl = (float)base_speedl - out;
+        dr = (float)base_speedr + out;
+
+        if (dl > max_speedl)
+            dl = max_speedl;
+        else if (dl < -max_speedl)
+            dl = -max_speedl;
+        if (dr > max_speedr)
+            dr = max_speedr;
+        else if (dr < -max_speedr)
+            dr = -max_speedr;
+        motor(-dl, -dr);
     }
 }
 
@@ -530,13 +712,15 @@ void Aguro::motor(int dl, int dr)
     }
 }
 
-void Aguro::magnet(bool state){
+void Aguro::magnet(bool state)
+{
     this->magnet_state = state;
-    if(state){
+    if (state)
+    {
         digitalWrite(Relay, LOW);
-        
     }
-    else{
+    else
+    {
         digitalWrite(Relay, HIGH);
     }
 }

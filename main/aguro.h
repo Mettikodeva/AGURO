@@ -23,7 +23,8 @@
 // #define SCL A5
 
 // API for the robot methods
-class Aguro{
+class Aguro
+{
 private:
     bool start = true;
     bool DEBUG = true;
@@ -33,14 +34,22 @@ private:
     bool garisKiri = false;
     bool garisKanan = false;
     bool magnet_state = false;
+    float Kp = 1.53;
+    float Kd = 0;
+    float Ki = 0.0001;
+
 public:
     void updateSensor();
     // initialize all the pin mode and interrupt and communication if present
     void init(bool debug = true, Sensor *sensor = NULL);
     // just to follow closed loop line without junction
-    void traceLine(int speed);
+    void traceLine(int speed, bool use_I = false);
     void followUntil(char type, int speed);
+    void followUntil(char type, int speed, int stop_delay);
     void magnet(bool);
+    void Aguro::setPID(int P);
+    void Aguro::setPID(int P, int D);
+    void Aguro::setPID(int P, int I, int D);
     void motor(int dl, int dr);
     bool isStarted();
     void centering();
