@@ -2,32 +2,21 @@
 
 void Sensor::init(bool debug)
 {
+    pinMode(PushButton, INPUT_PULLUP);
     pinMode(Trig, OUTPUT);
     pinMode(Echo, INPUT);
-    pinMode(sp1, INPUT);
-    pinMode(sp2, INPUT);
-    pinMode(sp3, INPUT);
-    pinMode(sp4, INPUT);
-    pinMode(sp5, INPUT);
-    pinMode(sp6, INPUT);
-    pinMode(sp7, INPUT);
-    pinMode(sp8, INPUT);
+    pinMode(MUXData, INPUT);
+    pinMode(MUXPinA, OUTPUT);
+    pinMode(MUXPinB, OUTPUT);
+    pinMode(MUXPinC, OUTPUT);
     this->DEBUG = debug;
 }
 
-char Sensor::readsensorline()
+void Sensor::setMux(int index)
 {
-    // noInterrupts();
-    sensors[0] = analogRead(sp1);
-    sensors[1] = analogRead(sp2);
-    sensors[2] = analogRead(sp3);
-    sensors[3] = analogRead(sp4);
-    sensors[4] = analogRead(sp5);
-    sensors[5] = analogRead(sp6);
-    sensors[6] = analogRead(sp7);
-    sensors[7] = analogRead(sp8);
-    // Serial.println("reading sensor");
-    // interrupts();
+    digitalWrite(MUXPinA, MUX[index][0]);
+    digitalWrite(MUXPinB, MUX[index][1]);
+    digitalWrite(MUXPinC, MUX[index][2]);
 }
 
 void Sensor::calibrateLine()
@@ -47,41 +36,61 @@ void Sensor::calibrateLine()
                 leds[i] = CRGB(0, 0, 0);
                 FastLED.show();
             }
-            // delay(3);
-            // FastLED.show();
         }
         shift++;
         if (shift >= NUM_LEDS + 2)
             shift = 0;
     }
-    // noInterrupts();
     digitalWrite(LED_BUILTIN, HIGH);
     // read line first, then read the background
-    int line_[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-    int background_[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+    noInterrupts();
+    int line_[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int background_[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int counter = 0;
-    blink_led(3,100, CRGB::Red);
-    uint32_t start = millis();
-    while (millis() - start < 300)
+    uint16_t start = millis();
+    bool wanna_calibrate = false;
+    while (millis() - start < 3000)
     {
-        this->readsensorline();
+        blink_led(1, 3000 - (millis() - start), CRGB::Red);
+        if (digitalRead(PushButton))
+        {
+            wanna_calibrate = true;
+            break;
+        }
+        else
+        {
+            wanna_calibrate = false;
+        }
+    }
+    if (!wanna_calibrate)
+    {
+        this->calibrated = true;
+        read_calibration();
+        return;
+    }
+    while (digitalRead(PushButton))
+    {
         for (int i = 0; i < 8; i++)
         {
-            line_[i] = sensors[i];
-            Serial.println("baca line " + String(sensors[i]));
+            setMux(i);
+            delayMicroseconds(10);
+            line_[i] = analogRead(MUXData);
         }
+        line_[8] = analogRead(SpinFL);
+        line_[9] = analogRead(SpinFR);
         delay(10);
     }
     blink_led(3, 150, CRGB::Blue);
-    start = millis();
-    blink_led(3, 50, CRGB::Red);
-    while (millis()-start<300)
+    while (digitalRead(PushButton))
     {
-        this->readsensorline();
         for (int i = 0; i < 8; i++)
         {
-            background_[i] = sensors[i];
+            setMux(i);
+            delayMicroseconds(10);
+            background_[i] = analogRead(MUXData);
         }
+        background_[8] = analogRead(SpinFL);
+        background_[9] = analogRead(SpinFR);
         delay(10);
     }
     blink_led(3, 150, CRGB::Blue);
@@ -90,7 +99,7 @@ void Sensor::calibrateLine()
         line_high = false;
     else
         line_high = true;
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 10; i++)
     {
         if (line_high)
         {
@@ -103,32 +112,82 @@ void Sensor::calibrateLine()
             min_line[i] = line_[i];
         }
     }
-    // save_calibration();
+    save_calibration();
+    while (millis() - start < 3000)
+    {
+        blink_led(1, 3000 - (millis() - start), CRGB::Red);
+        if (digitalRead(PushButton))
+        {
+            wanna_calibrate = true;
+            break;
+        }
+        else
+        {
+            wanna_calibrate = false;
+        }
+    }
+    if (!wanna_calibrate)
+    {
+        read_calibration();
+        return;
+    }
+
+    while (digitalRead(PushButton))
+    {
+        line_[10] = analogRead(SpinBL);
+        line_[11] = analogRead(SpinBR);
+        delay(10);
+    }
+    blink_led(3, 150, CRGB::Blue);
+    while (digitalRead(PushButton))
+    {
+        background_[10] = analogRead(SpinBL);
+        background_[11] = analogRead(SpinBR);
+        delay(10);
+    }
+    blink_led(3, 150, CRGB::Blue);
+    this->calibrated = true;
+
+    for (int i = 10; i < 12; i++)
+    {
+        if (line_high)
+        {
+            max_line[i] = line_[i];
+            min_line[i] = background_[i];
+        }
+        else
+        {
+            max_line[i] = background_[i];
+            min_line[i] = line_[i];
+        }
+    }
+    save_calibration();
+
     digitalWrite(LED_BUILTIN, LOW);
+    interrupts();
     for (int i = 0; i < 8; i++)
     {
         leds[i] = CRGB(0, 0, 0);
         FastLED.show();
         delay(100);
     }
-    // interrupts();
 }
 
 void Sensor::save_calibration()
 {
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 12; i++)
     {
         EEPROMWriteInt(i * sizeof(int), max_line[i]);
-        EEPROMWriteInt(i * sizeof(int) + 8 * sizeof(int), min_line[i]);
+        EEPROMWriteInt(i * sizeof(int) + 12 * sizeof(int), min_line[i]);
     }
 }
 
 void Sensor::read_calibration()
 {
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 12; i++)
     {
         max_line[i] = EEPROMReadInt(i * sizeof(int));
-        min_line[i] = EEPROMReadInt(i * sizeof(int) + 8 * sizeof(int));
+        min_line[i] = EEPROMReadInt(i * sizeof(int) + 12 * sizeof(int));
     }
 }
 
@@ -140,7 +199,10 @@ bool Sensor::readlinebool(int index)
 {
     // IF THE SENSOR DETECT LINE THE VALUE WILL BE 1
     // ELSE 0
-    readsensorline();
+    noInterrupts();
+    setMux(index);
+    delayMicroseconds(10);
+    sensors[index] = analogRead(MUXData);
     if (this->calibrated)
     {
         if (sensors[index] > (max_line[index] - min_line[index]) / 2 + min_line[index])
@@ -155,10 +217,15 @@ bool Sensor::readlinebool(int index)
     }
     else
     {
-        if (sensors[index] > 800)
-            return 1;
-        else
+        if (sensors[index] > 750)
+            if (line_high)
+                return 1;
+            else
+                return 0;
+        else if (line_high)
             return 0;
+        else
+            return 1;
     }
 }
 

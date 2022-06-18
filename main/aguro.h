@@ -39,16 +39,13 @@ private:
     float Ki = 0.0001;
 
 public:
-    void updateSensor();
+    void updateSensor(char sensor_id = -1);
     // initialize all the pin mode and interrupt and communication if present
     void init(bool debug = true, Sensor *sensor = NULL);
     // just to follow closed loop line without junction
     void traceLine(int speed, bool use_I = false);
-    void followUntil(char type, int speed);
-    void followUntil(char type, int speed, int stop_delay);
+    void followUntil(char type, int speed, int stop_delay = 0);
     void magnet(bool);
-    void Aguro::setPID(int P);
-    void Aguro::setPID(int P, int D);
     void Aguro::setPID(int P, int I, int D);
     void motor(int dl, int dr);
     bool isStarted();
@@ -58,7 +55,7 @@ public:
     void stop_motor();
     void left(int, int);
     void right(int, int);
-    void mundur(int, int);
+    void mundur(int, int, bool check_switch = false);
 };
 
 #endif

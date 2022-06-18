@@ -1,5 +1,7 @@
 #ifndef definitions_h
 #define definitions_h
+#include <stdlib.h>
+#include <stdio.h>
 #include <FastLED.h>
 #include "Arduino.h"
 #include <EEPROM.h>
@@ -16,9 +18,10 @@
 #define SHORT_PRESS 300
 #define RESET_PRESS 5000
 
-//PIN
+// PIN
 #define Relay 13
-#define PushButton 3 // push button //PCINT0 //should be input pullup
+#define LimitSwitch 1 // perlu di ubah keknya
+#define PushButton 3  // push button //PCINT0 //should be input pullup
 
 extern CRGB leds[NUM_LEDS];
 extern void blink_led(int times, int delay_time, CRGB color);
