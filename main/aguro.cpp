@@ -17,15 +17,6 @@ void Aguro::_start()
     this->start = true;
     this->updateSensor();
 }
-void Aguro::setPID(int P)
-{
-    this->Kp = P;
-}
-void Aguro::setPID(int P, int D)
-{
-    this->Kp = P;
-    this->Kd = D;
-}
 void Aguro::setPID(int P, int I, int D)
 {
     this->Kp = P;
@@ -42,17 +33,90 @@ void Aguro::init(bool debug, Sensor *sensor)
     pinMode(ENB, OUTPUT);
     pinMode(Relay, OUTPUT);
     digitalWrite(Relay, HIGH);
-    s = sensor;
-    s->init(debug);
+    if (sensor != NULL)
+    {
+        this->s = sensor;
+        this->s->init(debug);
+    }
+    else
+    {
+        s = new Sensor();
+        s->init(debug);
+    }
     this->DEBUG = debug;
-    // Serial.println("calibrating");
-    // s->calibrateLine();
-    // Serial.println("calibration finish");
 }
 
 void Aguro::centering()
 {
+    float dl, dr, out;
+    static signed int err = 0;
+    float P, I, D;
+    static signed int dErr, last_err;
+    int max_speedl = 150;
+    int max_speedr = 150;
     updateSensor();
+    while (!(sensors[3] && sensors[4]))
+    {
+        updateSensor();
+
+        if (sensors[0] || sensors[7])
+        {
+            if (sensors[0])
+                err = -100;
+            else
+                err = 100;
+        }
+        else if (sensors[1] || sensors[6])
+        {
+            if (sensors[1])
+                err = -50;
+            else
+                err = 50;
+        }
+        else if (sensors[2] || sensors[5])
+        {
+            if (sensors[2])
+                err = -10;
+            else
+                err = 10;
+        }
+        else if (sensors[3] || sensors[4])
+        {
+            if (sensors[3])
+                err = -5;
+            else
+                err = 5;
+        }
+        else
+        {
+            err = last_err;
+        }
+        dErr = err - last_err;
+        last_err = err;
+        P = err * 1;
+        I = I * 0.0001;
+        D = D * 0.5;
+        out = P + I + D;
+        if (out > 0)
+        {
+            dl = out;
+            dr = out;
+        }
+        else
+        {
+            dl = -out;
+            dr = -out;
+        }
+        if (dl > max_speedl)
+            dl = max_speedl;
+        if (dr > max_speedr)
+            dr = max_speedr;
+        if (dl < -max_speedl)
+            dl = -max_speedl;
+        if (dr < -max_speedr)
+            dr = -max_speedr;
+        motor(dl, dr);
+    }
 }
 
 void Aguro::updateSensor()

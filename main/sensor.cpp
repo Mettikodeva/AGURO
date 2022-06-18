@@ -60,7 +60,7 @@ void Sensor::calibrateLine()
     int line_[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     int background_[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     int counter = 0;
-    blink_led(3,100, CRGB::Red);
+    blink_led(3, 100, CRGB::Red);
     uint32_t start = millis();
     while (millis() - start < 300)
     {
@@ -75,7 +75,7 @@ void Sensor::calibrateLine()
     blink_led(3, 150, CRGB::Blue);
     start = millis();
     blink_led(3, 50, CRGB::Red);
-    while (millis()-start<300)
+    while (millis() - start < 300)
     {
         this->readsensorline();
         for (int i = 0; i < 8; i++)
