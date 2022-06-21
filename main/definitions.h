@@ -30,9 +30,9 @@ void interruptSetup();
 extern int make_safe(int val);
 extern int EEPROMReadInt(int address);
 extern void EEPROMWriteInt(int address, int value);
-static void (*__shortPressFunc)(void);
+extern void (*__shortPressFunc)(void);
 // static void (*__mediumPressFunc)(void);
-static void (*__longPressFunc)(void);
+extern void (*__longPressFunc)(void);
 // class Button
 // {
 //     bool button_flag = false;

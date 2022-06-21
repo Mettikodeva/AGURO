@@ -27,16 +27,16 @@ void EEPROMWriteInt(int address, int value)
     EEPROM.write(address + 1, byte2);
 }
 
-void interruptSetup()
-{
-    // Initializes Timer2 to throw an interrupt every 2mS.
-    // TCCR0A = 0b00100010; // DISABLE PWM ON DIGITAL PINS 3 AND 11, AND GO INTO CTC MODE
-    // TCCR0B = 0b00000101; // DON'T FORCE COMPARE, 1024 PRESCALER
-    // OCR0A = 194;         // SET THE TOP OF THE COUNT TO 194 FOR 40Hz SAMPLE RATE
-    // TIMSK0 = 0b00000011; // ENABLE INTERRUPT ON MATCH BETWEEN TIMER2 AND OCR2A
-    // TIFR0 = 0b00000011;  // CLEAR THE INTERRUPT FLAG
-    // sei();               // MAKE SURE GLOBAL INTERRUPTS ARE ENABLED
-}
+// void interruptSetup()
+// {
+//     // Initializes Timer2 to throw an interrupt every 2mS.
+//     // TCCR0A = 0b00100010; // DISABLE PWM ON DIGITAL PINS 3 AND 11, AND GO INTO CTC MODE
+//     // TCCR0B = 0b00000101; // DON'T FORCE COMPARE, 1024 PRESCALER
+//     // OCR0A = 194;         // SET THE TOP OF THE COUNT TO 194 FOR 40Hz SAMPLE RATE
+//     // TIMSK0 = 0b00000011; // ENABLE INTERRUPT ON MATCH BETWEEN TIMER2 AND OCR2A
+//     // TIFR0 = 0b00000011;  // CLEAR THE INTERRUPT FLAG
+//     // sei();               // MAKE SURE GLOBAL INTERRUPTS ARE ENABLED
+// }
 
 void blink_led(int times, int delay_time, CRGB color)
 {
@@ -170,9 +170,3 @@ int make_safe(int val)
 // {
 //     __longPressFunc = f;
 // }
-
-// // Button myPB = Button();
-// // ISR(TIMER0_COMPA_vect)
-// // {
-// //     myPB.update();
-// // }
