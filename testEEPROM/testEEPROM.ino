@@ -13,18 +13,17 @@ void setup()
 void loop()
 {
     Serial.println("HIGH");
-    for(int i = 0; i<8; i++)
+    for(int i = 0; i<12; i++)
     {
         int value = EEPROMReadInt(i*sizeof(int));
         Serial.println("nilai" + String(i) + ": " + String(value));
     }
     Serial.println();
     Serial.println("LOW");
-    for(int i = 8; i<16; i++)
+    for(int i = 12; i<24; i++)
     {
         int value = EEPROMReadInt(i*sizeof(int));
         Serial.println("nilai" + String(i) + ": " + String(value));
     }
     Serial.println();
-
 }
