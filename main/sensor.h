@@ -17,10 +17,10 @@
 #define MUXPinA A1
 #define MUXPinB A2
 #define MUXPinC A3
-#define SpinFL A4
-#define SpinFR A5
-#define SpinBL A6
-#define SpinBR A7
+#define SpinFL A7
+#define SpinFR A6
+#define SpinBL A5
+#define SpinBR A4
 #define SFL 8
 #define SFR 9
 #define SBL 10
@@ -30,12 +30,12 @@
 #define Echo 4 // PD4 //input
 static unsigned char MUX[8][3] = {
     {0, 0, 0},
-    {0, 0, 1},
-    {0, 1, 0},
-    {0, 1, 1},
     {1, 0, 0},
-    {1, 0, 1},
+    {0, 1, 0},
     {1, 1, 0},
+    {0, 0, 1},
+    {1, 0, 1},
+    {0, 1, 1},
     {1, 1, 1}};
 
 class Sensor
@@ -52,7 +52,7 @@ private:
     int max_line[12];
     int min_line[12];
     bool calibrated = false;
-    bool line_high = false;
+    bool line_high = true;
     void save_calibration();
     void read_calibration();
     void setMux(int);

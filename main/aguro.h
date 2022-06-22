@@ -28,7 +28,7 @@ class Aguro
 private:
     bool start = true;
     bool DEBUG = true;
-    bool sensors[8];
+    bool sensors[12];
     Sensor *s;
     bool line_found = false;
     bool garisKiri = false;

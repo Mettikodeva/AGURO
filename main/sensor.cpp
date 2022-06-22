@@ -10,6 +10,8 @@ void Sensor::init(bool debug)
     pinMode(MUXPinB, OUTPUT);
     pinMode(MUXPinC, OUTPUT);
     this->DEBUG = debug;
+
+    read_calibration();
 }
 
 void Sensor::setMux(int index)
@@ -43,7 +45,6 @@ void Sensor::calibrateLine()
     }
     digitalWrite(LED_BUILTIN, HIGH);
     // read line first, then read the background
-    noInterrupts();
     int line_[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int background_[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int counter = 0;
@@ -51,8 +52,9 @@ void Sensor::calibrateLine()
     bool wanna_calibrate = false;
     while (millis() - start < 3000)
     {
-        blink_led(1, 3000 - (millis() - start), CRGB::Red);
-        if (digitalRead(PushButton))
+        blink_led(3, 50, CRGB::Red);
+
+        if (!digitalRead(PushButton))
         {
             wanna_calibrate = true;
             break;
@@ -62,12 +64,15 @@ void Sensor::calibrateLine()
             wanna_calibrate = false;
         }
     }
+    Serial.println("keluar");
     if (!wanna_calibrate)
     {
         this->calibrated = true;
         read_calibration();
+        blink_led(3,150,CRGB::Green);   
         return;
     }
+    blink_led(3, 200, CRGB::Red);
     while (digitalRead(PushButton))
     {
         for (int i = 0; i < 8; i++)
@@ -80,6 +85,7 @@ void Sensor::calibrateLine()
         line_[9] = analogRead(SpinFR);
         delay(10);
     }
+
     blink_led(3, 150, CRGB::Blue);
     while (digitalRead(PushButton))
     {
@@ -112,26 +118,28 @@ void Sensor::calibrateLine()
             min_line[i] = line_[i];
         }
     }
-    save_calibration();
-    while (millis() - start < 3000)
+    // save_calibration();
+    shift = 0;
+    for (int j = 0; j < 30; j++)
     {
-        blink_led(1, 3000 - (millis() - start), CRGB::Red);
-        if (digitalRead(PushButton))
+        for (int i = 0; i < NUM_LEDS; i++)
         {
-            wanna_calibrate = true;
-            break;
+            if (i <= shift && i > shift - 4)
+            {
+                leds[i] = CRGB(255, 255, 0);
+                FastLED.show();
+            }
+            else
+            {
+                leds[i] = CRGB(0, 0, 0);
+                FastLED.show();
+            }
         }
-        else
-        {
-            wanna_calibrate = false;
-        }
+        shift++;
+        if (shift >= NUM_LEDS + 2)
+            shift = 0;
     }
-    if (!wanna_calibrate)
-    {
-        read_calibration();
-        return;
-    }
-
+    blink_led(3, 200, CRGB::Red);
     while (digitalRead(PushButton))
     {
         line_[10] = analogRead(SpinBL);
@@ -164,7 +172,6 @@ void Sensor::calibrateLine()
     save_calibration();
 
     digitalWrite(LED_BUILTIN, LOW);
-    interrupts();
     for (int i = 0; i < 8; i++)
     {
         leds[i] = CRGB(0, 0, 0);
@@ -189,6 +196,8 @@ void Sensor::read_calibration()
         max_line[i] = EEPROMReadInt(i * sizeof(int));
         min_line[i] = EEPROMReadInt(i * sizeof(int) + 12 * sizeof(int));
     }
+    blink_led(5,150,CRGB::Red);
+    blink_led(3,100,CRGB::Black);
 }
 
 bool Sensor::is_line_high()
@@ -199,33 +208,84 @@ bool Sensor::readlinebool(int index)
 {
     // IF THE SENSOR DETECT LINE THE VALUE WILL BE 1
     // ELSE 0
-    noInterrupts();
+    int compare = 0;
+    if(index<8){
     setMux(index);
     delayMicroseconds(10);
     sensors[index] = analogRead(MUXData);
-    if (this->calibrated)
-    {
+    if(index == 0){
+        // Serial.println("sensor 1 : " +String(sensors[0]));
+    }
+        compare = sensors[index] > (max_line[index] - min_line[index]) / 2 + min_line[index];
+        // Serial.println("s"+String(index)+", val : "+String(sensors[index]));
         if (sensors[index] > (max_line[index] - min_line[index]) / 2 + min_line[index])
             if (line_high)
                 return 1;
             else
                 return 0;
-        else if (line_high)
-            return 0;
-        else
-            return 1;
-    }
-    else
-    {
-        if (sensors[index] > 750)
+        else {
             if (line_high)
-                return 1;
-            else
                 return 0;
-        else if (line_high)
-            return 0;
-        else
-            return 1;
+            else
+                return 1;}
+    }
+    else{
+        switch(index)
+        {
+            case SFL:
+                sensors[index] = analogRead(SpinFL);
+                if (sensors[index] > 600)
+                    if (line_high)
+                        return 1;
+                    else
+                        return 0;
+                else {
+                    if (line_high)
+                        return 0;
+                    else
+                        return 1;}
+            case SFR:
+                sensors[index] = analogRead(SpinFR);
+                if (sensors[index] > 600)
+                    if (line_high)
+                        return 1;
+                    else
+                        return 0;
+                else {
+                    if (line_high)
+                        return 0;
+                    else
+                        return 1;}
+            case SBL:
+                sensors[index] = analogRead(SpinBL);
+                if (sensors[index] > 600)
+                    if (line_high)
+                        return 1;
+                    else
+                        return 0;
+                else {
+                    if (line_high)
+                        return 0;
+                    else
+                        return 1;}
+            case SBR:
+                sensors[index] = analogRead(SpinBR);
+                if (sensors[index] > 400)
+                    if (line_high)
+                        return 1;
+                    else
+                        return 0;
+                else {
+                    if (line_high)
+                        return 0;
+                    else
+                        return 1;}
+        }
+
+        // compare = (min_line[index] - max_line[index]) / 2 + max_line[index];
+        // Serial.println("s"+String(index)+", val:"+ String(compare));
+        // Serial.println("compare : "+ String(compare));
+        
     }
 }
 

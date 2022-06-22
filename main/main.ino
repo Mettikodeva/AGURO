@@ -41,9 +41,9 @@ Aguro aguro;
 
 void setup()
 {
-    // Serial.begin(115200);
-    // // pinMode(3, INPUT_PULLUP);
-    // delayMicroseconds(100);
+    Serial.begin(115200);
+    pinMode(3, INPUT_PULLUP);
+    delayMicroseconds(100);
     // attachInterrupt(digitalPinToInterrupt(3), myInterrupt, FALLING);
 
     // LED
@@ -52,14 +52,31 @@ void setup()
 
     // AGURO
     aguro.init(true);
-    aguro.setPID(1.53, 0.0, 0.0);
+    aguro.setPID(1.3, 0.0, 0.0);
     aguro._start();
     aguro.magnet(false);
 }
 
 void loop()
 {
-    int speed = 100;
+    // aguro.motor(100,100);
+    // aguro.updateSensor(-3);
+    
+    int speed = 110;
+    // aguro.followUntil(TJ, speed);
+    // // // // delay(100);
+    aguro.mundur(100,3000);
+    // aguro.centering();
+    // delay(2000);    
+
+    // aguro.followUntil(TJ, speed);
+    // blink_led(2,100,CRGB::Green);
+    // delay(500);
+    // aguro.followUntil(TJ, speed);
+    // blink_led(2,100,CRGB::Green);
+    // delay(500);
+    
+    // aguro.traceLine(speed);
     /*
         // LOOPING THROUGH THE ARENA
         aguro.followUntil(TJ, speed);
