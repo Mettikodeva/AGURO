@@ -3,12 +3,13 @@
 #include "sensor.h"
 
 // Driver motor pin
-#define IN1 6  // left motor //PD6
+#define IN1 10 // left motor //PD6
 #define IN2 7  // PD7
 #define ENA 11 // PB2
-#define IN3 8  // right motor //PB0
-#define IN4 9  // PB1
-#define ENB 10 // PB3
+
+#define IN3 8 // right motor //PB0
+#define IN4 9 // PB1
+#define ENB 6 // PB3
 
 #define Relay 13 // relay for controling electromagnet
 
@@ -51,6 +52,8 @@ public:
     void Aguro::setPID(int P, int I, int D);
     void motor(int dl, int dr);
     bool isStarted();
+    void right_auto();
+    void left_auto();
     void centering();
     void stop();
     void _start();

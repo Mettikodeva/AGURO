@@ -51,21 +51,21 @@ void Aguro::centering()
 {
 
     updateSensor();
-    while (!sensors[3] & !sensors[4])
+    while (!sensors[3] && !sensors[4])
     {
         updateSensor();
-        if (sensors[SFL] || sensors[SFR])
-        {
-            if (sensors[SFL])
-            {
-                motor(200, -200);
-            }
-            else
-            {
-                motor(-200, 200);
-            }
-        }
-        else if (sensors[0] || sensors[7])
+        // if (sensors[SFL] || sensors[SFR])
+        // {
+        //     if (sensors[SFL])
+        //     {
+        //         motor(200, -200);
+        //     }
+        //     else
+        //     {
+        //         motor(-200, 200);
+        //     }
+        // }
+        if (sensors[0] || sensors[7])
         {
             if (sensors[0])
             {
@@ -193,7 +193,8 @@ void Aguro::followUntil(char type, int speed, int stop_delay)
 {
     bool found_garis = false;
     int pass_line = 10;
-
+    bool line[2] = {false, false};
+    uint16_t last_time = 0;
     if (type == TJ)
     {
         for (int i = 0; i < 10; i++)
@@ -204,10 +205,25 @@ void Aguro::followUntil(char type, int speed, int stop_delay)
             {
                 traceLine(speed);
                 updateSensor(-3);
-                if (!sensors[SFL] && !sensors[SFR])
-                    found_garis = false;
-                else
-                    found_garis = true;
+                last_time = millis();
+                bool temp[2] = {!sensors[SFL], !sensors[SFR]};
+                if (!sensors[SFL] || !sensors[SFR])
+                    while (millis() - last_time < 50)
+                    {
+                        updateSensor(-3);
+                        if (!sensors[SFL] && temp[1])
+                        {
+                            found_garis = false;
+                        }
+                        else if (!sensors[SFR] && temp[0])
+                        {
+                            found_garis = false;
+                        }
+                        else
+                        {
+                            found_garis = true;
+                        }
+                    }
             }
             if (!found_garis)
                 break;
@@ -222,10 +238,29 @@ void Aguro::followUntil(char type, int speed, int stop_delay)
                 traceLine(speed);
                 updateSensor(-3);
                 // updateSensor();
-                if (sensors[SFL] && sensors[SFR])
-                    found_garis = true;
-                else
-                    found_garis = false;
+                last_time = millis();
+                bool temp[2] = {sensors[SFL], sensors[SFR]};
+                if (sensors[SFL] || sensors[SFR])
+                    while (millis() - last_time < 50)
+                    {
+                        updateSensor(-3);
+                        if (sensors[SFL] && temp[1])
+                        {
+                            found_garis = true;
+                        }
+                        else if (sensors[SFR] && temp[0])
+                        {
+                            found_garis = true;
+                        }
+                        else
+                        {
+                            found_garis = false;
+                        }
+                    }
+                // if (sensors[SFL] && sensors[SFR])
+                //     found_garis = true;
+                // else
+                //     found_garis = false;
             }
             if (found_garis)
                 break;
@@ -241,10 +276,25 @@ void Aguro::followUntil(char type, int speed, int stop_delay)
                 updateSensor(-3);
                 // updateSensor(-3);
 
-                if (!sensors[SFL] && !sensors[SFR])
-                    found_garis = false;
-                else
-                    found_garis = true;
+                last_time = millis();
+                bool temp[2] = {!sensors[SFL], !sensors[SFR]};
+                if (!sensors[SFL] || !sensors[SFR])
+                    while (millis() - last_time < 50)
+                    {
+                        updateSensor(-3);
+                        if (!sensors[SFL] && temp[1])
+                        {
+                            found_garis = false;
+                        }
+                        else if (!sensors[SFR] && temp[0])
+                        {
+                            found_garis = false;
+                        }
+                        else
+                        {
+                            found_garis = true;
+                        }
+                    }
             }
             if (!found_garis)
                 break;
@@ -486,7 +536,15 @@ void Aguro::traceLine(int speed, bool use_I)
     // Serial.print(" ");
     // Serial.print(dr);
     // Serial.println("err :"+String(err));
-    motor(dl, dr);
+    if (err == 0)
+    {
+        motor(dl + 5, dr + 5);
+    }
+    else
+    {
+        motor(dl - 10, dr - 10);
+    }
+
     //    delay(10);
 }
 
@@ -499,31 +557,111 @@ void Aguro::right(int speed, int time)
     uint32_t time_start = millis();
     while (millis() - time_start < time)
     {
-        if (sensors[4] || sensors[5])
+        if (sensors[4] || sensors[3])
         {
             motor(0, 0);
-            break;
+            return;
         }
         motor(make_safe(speed), make_safe(0));
     }
-    if (sensors[0] || sensors[1] || sensors[2] || sensors[3] || sensors[4] || sensors[5] || sensors[6] || sensors[7])
-    {
-        centering();
-        return;
-    }
-    time_start = millis();
-    while (1 && millis() - time_start < 5000)
+}
+void Aguro::right_auto()
+{
+    int err = 0, last_err = 0;
+    int base_speed = 50;
+    int max_speed = 150;
+    uint16_t start_time = millis();
+    while (true && millis() - start_time < 5000)
     {
         updateSensor();
-        if (sensors[3] || sensors[4])
+        if (sensors[0] || sensors[7])
         {
-            break;
+            err = 1;
+        }
+        else if (sensors[1] || sensors[6])
+        {
+            err = 2;
+        }
+        else if (sensors[2] || sensors[5])
+        {
+            err = 3;
+        }
+        else if (sensors[3] || sensors[4])
+        {
+            err = 4;
         }
         else
         {
-            motor(make_safe(speed - 10), make_safe(0));
+            break;
         }
+        if (err == last_err)
+        {
+            base_speed += 5;
+        }
+        // Serial.println(base_speed);
+        last_err = err;
+        motor(constrain(base_speed, 0, max_speed), 0);
     }
+    // Serial.println("keluar");
+    // motor(0, 0);
+    motor(constrain(base_speed - 10, 0, max_speed), 0);
+    updateSensor();
+    while (!sensors[5] || !sensors[4])
+    {
+        updateSensor(5);
+        updateSensor(4);
+    }
+    motor(0, 0);
+    // Serial.println("finish");
+}
+void Aguro::left_auto()
+{
+    int err = 0, last_err = 0;
+    int base_speed = 50;
+    int max_speed = 155;
+    uint16_t start_time = millis();
+    while (true && millis() - start_time < 5000)
+    {
+        updateSensor();
+        if (sensors[0] || sensors[7])
+        {
+            err = 1;
+        }
+        else if (sensors[1] || sensors[6])
+        {
+            err = 2;
+        }
+        else if (sensors[2] || sensors[5])
+        {
+            err = 3;
+        }
+        else if (sensors[3] || sensors[4])
+        {
+            err = 4;
+        }
+        else
+        {
+            break;
+        }
+        if (err == last_err)
+        {
+            base_speed += 5;
+        }
+        last_err = err;
+        motor(0, constrain(base_speed, 0, max_speed));
+    }
+
+    // Serial.println("keluar");
+    // motor(0, 0);
+    motor(0, constrain(base_speed - 5, 0, max_speed));
+    updateSensor();
+    while (!sensors[3] || !sensors[2])
+    {
+        updateSensor(2);
+        updateSensor(3);
+    }
+    motor(0, 0);
+    // Serial.println("finish");
 }
 
 void Aguro::left(int speed, int time)
@@ -531,18 +669,14 @@ void Aguro::left(int speed, int time)
     uint32_t time_start = millis();
     while (millis() - time_start < time)
     {
-        if (sensors[3] || sensors[2])
+        if (sensors[3] || sensors[4])
         {
             motor(0, 0);
-            break;
+            return;
         }
         motor(-make_safe(0), make_safe(speed));
     }
-    if (sensors[0] || sensors[1] || sensors[2] || sensors[3] || sensors[4] || sensors[5] || sensors[6] || sensors[7])
-    {
-        centering();
-        return;
-    }
+
     time_start = millis();
     while (1 && millis() - time_start < 5000)
     {
@@ -553,7 +687,7 @@ void Aguro::left(int speed, int time)
         }
         else
         {
-            motor(make_safe(0), make_safe(speed - 10));
+            motor(make_safe(0), make_safe(speed - 30));
         }
     }
     motor(0, 0);
@@ -608,7 +742,7 @@ void Aguro::mundur(int speed, int time, bool check_switch)
 void Aguro::motor(int dl, int dr)
 {
     float dist = s->read_ultrasonic();
-    if (dist < 30)
+    if (dist < 15)
     {
         dl = 0;
         dr = 0;
@@ -617,13 +751,13 @@ void Aguro::motor(int dl, int dr)
     {
         digitalWrite(IN1, HIGH);
         digitalWrite(IN2, LOW);
-        analogWrite(ENA, -dl + 8);
+        analogWrite(ENA, -dl);
     }
     else
     {
         digitalWrite(IN1, LOW);
         digitalWrite(IN2, HIGH);
-        analogWrite(ENA, dl - 8);
+        analogWrite(ENA, dl);
     }
     if (dr < 0)
     {
