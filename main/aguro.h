@@ -37,6 +37,7 @@ private:
     float Kp = 1.53;
     float Kd = 0;
     float Ki = 0.0001;
+    bool mundur_flag = true; // true if right sensor last seen
 
 public:
     void updateSensor(char sensor_id = -1);
@@ -44,6 +45,7 @@ public:
     void init(bool debug = true, Sensor *sensor = NULL);
     // just to follow closed loop line without junction
     void traceLine(int speed, bool use_I = false);
+    void maju(int speed, int time);
     void followUntil(char type, int speed, int stop_delay = 0);
     void magnet(bool);
     void Aguro::setPID(int P, int I, int D);
