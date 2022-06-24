@@ -54,7 +54,7 @@ void blink_led(int times, int delay_time, CRGB color)
                 leds[i] = color;
                 FastLED.show();
             }
-        delay(100);
+        delay(delay_time);
     }
 }
 
