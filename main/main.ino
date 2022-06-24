@@ -52,46 +52,64 @@ void setup()
 
     // AGURO
     aguro.init(true);
-    aguro.setPID(1.3, 0.0, 0.0);
+    aguro.setPID(1.5, 0.0, 0.0);
     aguro._start();
     aguro.magnet(false);
 }
 
+bool home = true;
 void loop()
 {
     // aguro.motor(100,100);
     // aguro.updateSensor(-3);
 
-    int speed = 110;
-    // aguro.followUntil(TJ, speed);
-    // // // // delay(100);
-    // aguro.mundur(100,3000);
-    // aguro.centering();
-    // delay(2000);
-
-    // aguro.followUntil(TJ, speed);
-    // blink_led(2,100,CRGB::Green);
-    // delay(500);
-    // aguro.followUntil(TJ, speed);
-    // blink_led(2,100,CRGB::Green);
-    // delay(500);
-
-    // aguro.traceLine(speed);
+    int speed = 125;
 
     // LOOPING THROUGH THE ARENA
-    aguro.followUntil(TJ, speed);
-    aguro.followUntil(TJ, speed);
-    aguro.followUntil(TJ, speed);
-    aguro.followUntil(TJ, speed);
-    aguro.followUntil(TJ, speed);
-    aguro.followUntil(TJ, speed);
-    aguro.left(155, 340);
-    aguro.centering();
-    aguro.followUntil(FR, speed - 30);
-    aguro.followUntil(FL, speed - 30);
+    if (home)
+    {
+        aguro.followUntil(FR, speed, 100);
+        // delay(1000);
+        aguro.right_auto();
+        // delay(1000);
+        home = !home;
+    }
+    for (int i = 0; i < 5; i++)
+    {
+        aguro.followUntil(TJ, speed, 100);
+        blink_led(2, 50, CRGB::Blue);
+    }
+    aguro.followUntil(TJ, speed, 100);
+    delay(1000);
+    aguro.left_auto();
+    // delay(2000);
+    aguro.maju(100, 1000);
+    aguro.mundur(100, 5000);
     aguro.followUntil(FL, speed);
-    aguro.left(155, 340);
-    aguro.centering();
+    blink_led(2, 50, CRGB::Blue);
+    aguro.followUntil(FR, speed - 5);
+    blink_led(2, 50, CRGB::Blue);
+    aguro.followUntil(FL, speed - 5);
+    blink_led(2, 50, CRGB::Blue);
+    aguro.followUntil(FL, speed - 5);
+    blink_led(2, 50, CRGB::Blue);
+    aguro.left_auto();
+    // delay(1000);
+
+    // delay(50000);
+    // aguro.followUntil(TJ, speed);
+    // aguro.followUntil(TJ, speed);
+    // aguro.followUntil(TJ, speed);
+    // aguro.followUntil(TJ, speed);
+    // aguro.followUntil(TJ, speed);
+    // aguro.followUntil(TJ, speed);
+    // aguro.left(155, 340);
+    // aguro.centering();
+    // aguro.followUntil(FR, speed - 30);
+    // aguro.followUntil(FL, speed - 30);
+    // aguro.followUntil(FL, speed);
+    // aguro.left(155, 340);
+    // aguro.centering();
 
     // aguro.traceLine(speed);
     // aguro.right(155,340);
