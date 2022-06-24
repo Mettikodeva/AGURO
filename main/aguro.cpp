@@ -448,9 +448,9 @@ void Aguro::traceLine(int speed, bool use_I)
     else if (sensors[3] == 1 || sensors[4] == 1)
     {
         if (sensors[3] == 1)
-            err = -12;
+            err = -10;
         else
-            err = 12;
+            err = 10;
         line_found = true;
     }
     //    else if ((sensors[0] == 1 && sensors[1] == 1) || (sensors[7] == 1 && sensors[6] == 1))
@@ -509,15 +509,15 @@ void Aguro::traceLine(int speed, bool use_I)
     P = Kp * err;
     D = Kd * dErr;
 
-    if (I)
-    {
-        I += Ki * err;
-        out = (float)P + (float)I + (float)D;
-    }
-    else
-    {
-        out = (float)P + (float)D;
-    }
+    // if (I)
+    // {
+    I += Ki * err;
+    out = (float)P + (float)I + (float)D;
+    // }
+    // else
+    // {
+    //     out = (float)P + (float)D;
+    // }
 
     dl = (float)base_speedl + out;
     dr = (float)base_speedr - out;
@@ -538,11 +538,11 @@ void Aguro::traceLine(int speed, bool use_I)
     // Serial.println("err :"+String(err));
     if (err == 0)
     {
-        motor(dl + 5, dr + 5);
+        motor(dl + 5, dr + 9);
     }
     else
     {
-        motor(dl - 10, dr - 10);
+        motor(dl - 10, dr - 5);
     }
 
     //    delay(10);
@@ -568,7 +568,7 @@ void Aguro::right(int speed, int time)
 void Aguro::right_auto()
 {
     int err = 0, last_err = 0;
-    int base_speed = 50;
+    int base_speed = 100;
     int max_speed = 150;
     uint16_t start_time = millis();
     while (true && millis() - start_time < 5000)
@@ -592,6 +592,7 @@ void Aguro::right_auto()
         }
         else
         {
+            base_speed = 115;
             break;
         }
         if (err == last_err)
@@ -604,7 +605,7 @@ void Aguro::right_auto()
     }
     // Serial.println("keluar");
     // motor(0, 0);
-    motor(constrain(base_speed - 10, 0, max_speed), 0);
+    motor(constrain(base_speed, 0, max_speed), 0);
     updateSensor();
     while (!sensors[5] || !sensors[4])
     {
@@ -617,7 +618,7 @@ void Aguro::right_auto()
 void Aguro::left_auto()
 {
     int err = 0, last_err = 0;
-    int base_speed = 50;
+    int base_speed = 100;
     int max_speed = 155;
     uint16_t start_time = millis();
     while (true && millis() - start_time < 5000)
@@ -641,6 +642,7 @@ void Aguro::left_auto()
         }
         else
         {
+            base_speed = 125;
             break;
         }
         if (err == last_err)
@@ -653,7 +655,7 @@ void Aguro::left_auto()
 
     // Serial.println("keluar");
     // motor(0, 0);
-    motor(0, constrain(base_speed - 5, 0, max_speed));
+    motor(0, constrain(base_speed, 0, max_speed));
     updateSensor();
     while (!sensors[3] || !sensors[2])
     {
