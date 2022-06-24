@@ -69,7 +69,7 @@ void Sensor::calibrateLine()
     {
         this->calibrated = true;
         read_calibration();
-        blink_led(3,150,CRGB::Green);   
+        blink_led(3, 150, CRGB::Green);
         return;
     }
     blink_led(3, 200, CRGB::Red);
@@ -196,8 +196,8 @@ void Sensor::read_calibration()
         max_line[i] = EEPROMReadInt(i * sizeof(int));
         min_line[i] = EEPROMReadInt(i * sizeof(int) + 12 * sizeof(int));
     }
-    blink_led(5,150,CRGB::Red);
-    blink_led(3,100,CRGB::Black);
+    blink_led(5, 150, CRGB::Red);
+    blink_led(3, 100, CRGB::Black);
 }
 
 bool Sensor::is_line_high()
@@ -209,13 +209,15 @@ bool Sensor::readlinebool(int index)
     // IF THE SENSOR DETECT LINE THE VALUE WILL BE 1
     // ELSE 0
     int compare = 0;
-    if(index<8){
-    setMux(index);
-    delayMicroseconds(10);
-    sensors[index] = analogRead(MUXData);
-    if(index == 0){
-        // Serial.println("sensor 1 : " +String(sensors[0]));
-    }
+    if (index < 8)
+    {
+        setMux(index);
+        delayMicroseconds(10);
+        sensors[index] = analogRead(MUXData);
+        if (index == 0)
+        {
+            // Serial.println("sensor 1 : " +String(sensors[0]));
+        }
         compare = sensors[index] > (max_line[index] - min_line[index]) / 2 + min_line[index];
         // Serial.println("s"+String(index)+", val : "+String(sensors[index]));
         if (sensors[index] > (max_line[index] - min_line[index]) / 2 + min_line[index])
@@ -223,70 +225,92 @@ bool Sensor::readlinebool(int index)
                 return 1;
             else
                 return 0;
-        else {
+        else
+        {
             if (line_high)
                 return 0;
             else
-                return 1;}
-    }
-    else{
-        switch(index)
-        {
-            case SFL:
-                sensors[index] = analogRead(SpinFL);
-                if (sensors[index] > 600)
-                    if (line_high)
-                        return 1;
-                    else
-                        return 0;
-                else {
-                    if (line_high)
-                        return 0;
-                    else
-                        return 1;}
-            case SFR:
-                sensors[index] = analogRead(SpinFR);
-                if (sensors[index] > 600)
-                    if (line_high)
-                        return 1;
-                    else
-                        return 0;
-                else {
-                    if (line_high)
-                        return 0;
-                    else
-                        return 1;}
-            case SBL:
-                sensors[index] = analogRead(SpinBL);
-                if (sensors[index] > 600)
-                    if (line_high)
-                        return 1;
-                    else
-                        return 0;
-                else {
-                    if (line_high)
-                        return 0;
-                    else
-                        return 1;}
-            case SBR:
-                sensors[index] = analogRead(SpinBR);
-                if (sensors[index] > 400)
-                    if (line_high)
-                        return 1;
-                    else
-                        return 0;
-                else {
-                    if (line_high)
-                        return 0;
-                    else
-                        return 1;}
+                return 1;
         }
-
-        // compare = (min_line[index] - max_line[index]) / 2 + max_line[index];
-        // Serial.println("s"+String(index)+", val:"+ String(compare));
-        // Serial.println("compare : "+ String(compare));
-        
     }
+    else
+    {
+        // switch (index)
+        // {
+        // case SFL:
+        //     sensors[index] = analogRead(SpinFL);
+        //     if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
+        //         if (line_high)
+        //             return 1;
+        //         else
+        //             return 0;
+        //     else
+        //     {
+        //         if (line_high)
+        //             return 0;
+        //         else
+        //             return 1;
+        //     }
+        // case SFR:
+        //     sensors[index] = analogRead(SpinFR);
+        //     if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
+        //         if (line_high)
+        //             return 1;
+        //         else
+        //             return 0;
+        //     else
+        //     {
+        //         if (line_high)
+        //             return 0;
+        //         else
+        //             return 1;
+        //     }
+        // case SBL:
+        //     sensors[index] = analogRead(SpinBL);
+        //     if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
+        //         if (line_high)
+        //             return 1;
+        //         else
+        //             return 0;
+        //     else
+        //     {
+        //         if (line_high)
+        //             return 0;
+        //         else
+        //             return 1;
+        //     }
+        // case SBR:
+        //     sensors[index] = analogRead(SpinBR);
+        //     if (sensors[index] > (min_line[index] - max_line[index]) / 2 + max_line[index])
+        //         if (line_high)
+        //             return 1;
+        //         else
+        //             return 0;
+        //     else
+        //     {
+        //         if (line_high)
+        //             return 0;
+        //         else
+        //             return 1;
+        //     }
+        sensors[index] = analogRead(SpinFR);
+        if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
+            if (line_high)
+                return 1;
+            else
+                return 0;
+        else
+        {
+            if (line_high)
+                return 0;
+            else
+                return 1;
+        }
+    }
+
+    // compare = (min_line[index] - max_line[index]) / 2 + max_line[index];
+    // Serial.println("s"+String(index)+", val:"+ String(compare));
+    // Serial.println("compare : "+ String(compare));
 }
 
 // read ultrasonic and return in cm
@@ -297,7 +321,10 @@ float Sensor::read_ultrasonic()
     digitalWrite(Trig, HIGH);
     delayMicroseconds(10);
     digitalWrite(Trig, LOW);
-    float duration = pulseIn(Echo, HIGH);
+    float duration = pulseIn(Echo, HIGH, 3500UL);
+    // Serial.println("duration : " + String(duration));
+    if (duration == 0)
+        return 16;
     float distance = duration / (29.1 * 2);
     return distance;
 }
