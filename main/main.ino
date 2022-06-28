@@ -6,6 +6,7 @@ Aguro aguro;
 // coba ganti main
 // tes ganti lagi
 // tes ganti dari nara
+// tes dari tabah
 /*
 // AGURO FUNCTIONS
     aguro.init(bool debug, Sensor* x);
