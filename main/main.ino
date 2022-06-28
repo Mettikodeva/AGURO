@@ -3,6 +3,7 @@
 #include "definitions.h"
 
 Aguro aguro;
+// coba ganti main
 /*
 // AGURO FUNCTIONS
     aguro.init(bool debug, Sensor* x);
