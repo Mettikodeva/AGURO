@@ -19,8 +19,8 @@
 #define MUXPinC A3
 #define SpinFL A7
 #define SpinFR A6
-#define SpinBL A5
-#define SpinBR A4
+#define SpinBL A4
+#define SpinBR A5
 #define SFL 8
 #define SFR 9
 #define SBL 10
