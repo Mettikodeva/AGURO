@@ -4,6 +4,7 @@
 
 Aguro aguro;
 // coba ganti main
+// tes ganti lagi
 /*
 // AGURO FUNCTIONS
     aguro.init(bool debug, Sensor* x);
