@@ -166,6 +166,7 @@ void Aguro::updateSensor(char sensor_id)
     }
     else
     {
+        Serial.print("sensors : ");
         for (int i = 0; i < 8; i++)
         {
             sensors[i] = s->readlinebool(i);
@@ -180,11 +181,23 @@ void Aguro::updateSensor(char sensor_id)
                 FastLED.show();
             }
             delayMicroseconds(10);
+            Serial.print(sensors[i]);
+            Serial.print(" ");
         }
+        Serial.println();
         sensors[SBL] = s->readlinebool(SBL);
+        Serial.print(sensors[SBL]);
+        Serial.print("\t");
         sensors[SBR] = s->readlinebool(SBR);
+        Serial.print(sensors[SBR]);
+        Serial.print("\t");
         sensors[SFL] = s->readlinebool(SFL);
+        Serial.print(sensors[SFL]);
+        Serial.print("\t");
         sensors[SFR] = s->readlinebool(SFR);
+        Serial.print(sensors[SFR]);
+        Serial.print("\t");
+        Serial.println();
     }
 }
 
@@ -434,8 +447,8 @@ void Aguro::traceLine(int speed, bool use_I)
     static signed int dErr, last_err;
     int base_speedl = speed;
     int base_speedr = speed;
-    int max_speedl = 230;
-    int max_speedr = 230;
+    int max_speedl = 250;
+    int max_speedr = 250;
     bool flag_dir = false;
 
     updateSensor();
@@ -461,7 +474,22 @@ void Aguro::traceLine(int speed, bool use_I)
     //            err = 80;
     //        line_found = true;
     //    }
-
+    else if(sensors[SFL]==1 || sensors[SFR]==1){
+        if(sensors[SFL])
+            if(line_found)
+                err = -100;
+            else
+                err = 100;
+        else{
+            if(line_found){
+                err = 100;
+            }
+            else{
+                err = -100;
+            }
+        }
+        line_found = true;
+    }
     else if (sensors[0] == 1 || sensors[7] == 1)
     {
         if (sensors[0])
@@ -509,15 +537,15 @@ void Aguro::traceLine(int speed, bool use_I)
     P = Kp * err;
     D = Kd * dErr;
 
-    // if (I)
-    // {
-    I += Ki * err;
-    out = (float)P + (float)I + (float)D;
-    // }
-    // else
-    // {
-    //     out = (float)P + (float)D;
-    // }
+    if (I)
+    {
+        I += Ki * err;
+        out = (float)P + (float)I + (float)D;
+    }
+    else
+    {
+        out = (float)P + (float)D;
+    }
 
     dl = (float)base_speedl + out;
     dr = (float)base_speedr - out;
@@ -536,15 +564,14 @@ void Aguro::traceLine(int speed, bool use_I)
     // Serial.print(" ");
     // Serial.print(dr);
     // Serial.println("err :"+String(err));
-    if (err == 0)
+    if (err < 40 && err >=0 || err>-40 && err <=0)
     {
-        motor(dl + 5, dr + 9);
+        motor(dl + 10, dr + 15);
     }
     else
     {
-        motor(dl - 10, dr - 5);
+        motor(dl - 5, dr);
     }
-
     //    delay(10);
 }
 
@@ -706,27 +733,27 @@ void Aguro::maju(int speed, int time)
 
 void Aguro::mundur(int speed, int time, bool check_switch)
 {
-    speed -= 10;
+    // speed -= 10;
     uint32_t time_start = millis();
     while (millis() - time_start < time)
     {
         updateSensor(-2);
         if (sensors[SBL] && !sensors[SBR])
         {
-            motor(-speed - 10, -speed + 20);
+            motor(-speed - 20, -speed + 20);
             mundur_flag = false;
         }
         else if (sensors[SBR] && !sensors[SBL])
         {
-            motor(-speed + 20, -speed - 10);
+            motor(-speed + 20, -speed - 20);
             mundur_flag = true;
         }
         else
         {
             if (mundur_flag)
-                motor(-speed + 20, -speed - 10);
+                motor(-speed +20, -speed - 20);
             else
-                motor(-speed - 10, -speed + 20);
+                motor(-speed - 20, -speed+20);
         }
         if (check_switch)
         {

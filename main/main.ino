@@ -56,7 +56,7 @@ void setup()
 
     // AGURO
     aguro.init(true);
-    aguro.setPID(1.5, 0.0, 0.0);
+    aguro.setPID(2, 0.0, 1.6);
     aguro._start();
     aguro.magnet(false);
 }
@@ -64,59 +64,39 @@ void setup()
 bool home = true;
 void loop()
 {
-    // aguro.motor(100,100);
-    // aguro.updateSensor(-3);
-    
 
-    int speed = 125;
+
+    int speed = 135;
+    aguro.traceLine(speed);
 
     // LOOPING THROUGH THE ARENA
-    if (home)
-    {
-        aguro.followUntil(FR, speed, 100);
-        // delay(1000);
-        aguro.right_auto();
-        // delay(1000);
-        home = !home;
-    }
-    for (int i = 0; i < 5; i++)
-    {
-        aguro.followUntil(TJ, speed, 100);
-        blink_led(2, 50, CRGB::Blue);
-    }
-    aguro.followUntil(TJ, speed, 100);
-    delay(1000);
-    aguro.left_auto();
-    // delay(2000);
-    aguro.maju(100, 1000);
-    aguro.mundur(100, 5000);
-    aguro.followUntil(FL, speed);
-    blink_led(2, 50, CRGB::Blue);
-    aguro.followUntil(FR, speed - 5);
-    blink_led(2, 50, CRGB::Blue);
-    aguro.followUntil(FL, speed - 5);
-    blink_led(2, 50, CRGB::Blue);
-    aguro.followUntil(FL, speed - 5);
-    blink_led(2, 50, CRGB::Blue);
-    aguro.left_auto();
+    // if (home)
+    // {
+    //     aguro.followUntil(FR, speed, 100);
+    //     // delay(1000);
+    //     aguro.right_auto();
+    //     // delay(1000);
+    //     home = !home;
+    // }
+    // for (int i = 0; i < 5; i++)
+    // {
+    //     aguro.followUntil(TJ, speed, 100);
+    //     blink_led(2, 50, CRGB::Blue);
+    // }
+    // aguro.followUntil(TJ, speed, 100);
     // delay(1000);
-
-    // delay(50000);
-    // aguro.followUntil(TJ, speed);
-    // aguro.followUntil(TJ, speed);
-    // aguro.followUntil(TJ, speed);
-    // aguro.followUntil(TJ, speed);
-    // aguro.followUntil(TJ, speed);
-    // aguro.followUntil(TJ, speed);
-    // aguro.left(155, 340);
-    // aguro.centering();
-    // aguro.followUntil(FR, speed - 30);
-    // aguro.followUntil(FL, speed - 30);
+    // aguro.left_auto();
+    // // delay(2000);
+    // aguro.maju(100, 1000);
+    // aguro.mundur(100, 5000);
     // aguro.followUntil(FL, speed);
-    // aguro.left(155, 340);
-    // aguro.centering();
-
-    // aguro.traceLine(speed);
-    // aguro.right(155,340);
-    // aguro.mundur(90, 2200);
+    // blink_led(2, 50, CRGB::Blue);
+    // aguro.followUntil(FR, speed - 5);
+    // blink_led(2, 50, CRGB::Blue);
+    // aguro.followUntil(FL, speed - 5);
+    // blink_led(2, 50, CRGB::Blue);
+    // aguro.followUntil(FL, speed - 5);
+    // blink_led(2, 50, CRGB::Blue);
+    // aguro.left_auto();
+    
 }
