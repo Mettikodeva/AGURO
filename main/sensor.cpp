@@ -235,84 +235,84 @@ bool Sensor::readlinebool(int index)
     }
     else
     {
-        // switch (index)
-        // {
-        // case SFL:
-        //     sensors[index] = analogRead(SpinFL);
-        //     if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
-        //         if (line_high)
-        //             return 1;
-        //         else
-        //             return 0;
-        //     else
-        //     {
-        //         if (line_high)
-        //             return 0;
-        //         else
-        //             return 1;
-        //     }
-        // case SFR:
-        //     sensors[index] = analogRead(SpinFR);
-        //     if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
-        //         if (line_high)
-        //             return 1;
-        //         else
-        //             return 0;
-        //     else
-        //     {
-        //         if (line_high)
-        //             return 0;
-        //         else
-        //             return 1;
-        //     }
-        // case SBL:
-        //     sensors[index] = analogRead(SpinBL);
-        //     if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
-        //         if (line_high)
-        //             return 1;
-        //         else
-        //             return 0;
-        //     else
-        //     {
-        //         if (line_high)
-        //             return 0;
-        //         else
-        //             return 1;
-        //     }
-        // case SBR:
-        //     sensors[index] = analogRead(SpinBR);
-        //     if (sensors[index] > (min_line[index] - max_line[index]) / 2 + max_line[index])
-        //         if (line_high)
-        //             return 1;
-        //         else
-        //             return 0;
-        //     else
-        //     {
-        //         if (line_high)
-        //             return 0;
-        //         else
-        //             return 1;
-        //     }
-        sensors[index] = analogRead(SpinFR);
-        if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
-            if (line_high)
-                return 1;
-            else
-                return 0;
-        else
+        switch (index)
         {
-            if (line_high)
-                return 0;
+        case SFL:
+            sensors[index] = analogRead(SpinFL);
+            if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
+                if (line_high)
+                    return 1;
+                else
+                    return 0;
             else
-                return 1;
-        }
+            {
+                if (line_high)
+                    return 0;
+                else
+                    return 1;
+            }
+        case SFR:
+            sensors[index] = analogRead(SpinFR);
+            if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
+                if (line_high)
+                    return 1;
+                else
+                    return 0;
+            else
+            {
+                if (line_high)
+                    return 0;
+                else
+                    return 1;
+            }
+        case SBL:
+            sensors[index] = analogRead(SpinBL);
+            if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
+                if (line_high)
+                    return 1;
+                else
+                    return 0;
+            else
+            {
+                if (line_high)
+                    return 0;
+                else
+                    return 1;
+            }
+        case SBR:
+            sensors[index] = analogRead(SpinBR);
+            if (sensors[index] > (min_line[index] - max_line[index]) / 2 + max_line[index])
+                if (line_high)
+                    return 1;
+                else
+                    return 0;
+            else
+            {
+                if (line_high)
+                    return 0;
+                else
+                    return 1;
+            }
+        // sensors[index] = analogRead(SpinFR);
+        // if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
+        //     if (line_high)
+        //         return 1;
+        //     else
+        //         return 0;
+        // else
+        // {
+        //     if (line_high)
+        //         return 0;
+        //     else
+        //         return 1;
+        // }
     }
 
     // compare = (min_line[index] - max_line[index]) / 2 + max_line[index];
     // Serial.println("s"+String(index)+", val:"+ String(compare));
     // Serial.println("compare : "+ String(compare));
 }
-
+}
 // read ultrasonic and return in cm
 float Sensor::read_ultrasonic()
 {

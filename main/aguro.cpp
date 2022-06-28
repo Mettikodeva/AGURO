@@ -181,23 +181,23 @@ void Aguro::updateSensor(char sensor_id)
                 FastLED.show();
             }
             delayMicroseconds(10);
-            Serial.print(sensors[i]);
-            Serial.print(" ");
+            // Serial.print(sensors[i]);
+            // Serial.print(" ");
         }
-        Serial.println();
+        // Serial.println();
         sensors[SBL] = s->readlinebool(SBL);
-        Serial.print(sensors[SBL]);
-        Serial.print("\t");
+        // Serial.print(sensors[SBL]);
+        // Serial.print("\t");
         sensors[SBR] = s->readlinebool(SBR);
-        Serial.print(sensors[SBR]);
-        Serial.print("\t");
+        // Serial.print(sensors[SBR]);
+        // Serial.print("\t");
         sensors[SFL] = s->readlinebool(SFL);
-        Serial.print(sensors[SFL]);
-        Serial.print("\t");
+        // Serial.print(sensors[SFL]);
+        // Serial.print("\t");
         sensors[SFR] = s->readlinebool(SFR);
-        Serial.print(sensors[SFR]);
-        Serial.print("\t");
-        Serial.println();
+        // Serial.print(sensors[SFR]);
+        // Serial.print("\t");
+        // Serial.println();
     }
 }
 
