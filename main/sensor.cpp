@@ -283,35 +283,22 @@ bool Sensor::readlinebool(int index)
             sensors[index] = analogRead(SpinBR);
             if (sensors[index] > (min_line[index] - max_line[index]) / 2 + max_line[index])
                 if (line_high)
-                    return 1;
-                else
                     return 0;
+                else
+                    return 1;
             else
             {
                 if (line_high)
-                    return 0;
-                else
                     return 1;
+                else
+                    return 0;
             }
-        // sensors[index] = analogRead(SpinFR);
-        // if (sensors[index] < (min_line[index] - max_line[index]) / 2 + max_line[index])
-        //     if (line_high)
-        //         return 1;
-        //     else
-        //         return 0;
-        // else
-        // {
-        //     if (line_high)
-        //         return 0;
-        //     else
-        //         return 1;
-        // }
-    }
+        }
 
-    // compare = (min_line[index] - max_line[index]) / 2 + max_line[index];
-    // Serial.println("s"+String(index)+", val:"+ String(compare));
-    // Serial.println("compare : "+ String(compare));
-}
+        // compare = (min_line[index] - max_line[index]) / 2 + max_line[index];
+        // Serial.println("s"+String(index)+", val:"+ String(compare));
+        // Serial.println("compare : "+ String(compare));
+    }
 }
 // read ultrasonic and return in cm
 float Sensor::read_ultrasonic()
@@ -321,10 +308,10 @@ float Sensor::read_ultrasonic()
     digitalWrite(Trig, HIGH);
     delayMicroseconds(10);
     digitalWrite(Trig, LOW);
-    float duration = pulseIn(Echo, HIGH, 3500UL);
+    float duration = pulseIn(Echo, HIGH, 6000UL);
     // Serial.println("duration : " + String(duration));
     if (duration == 0)
-        return 16;
+        return 32;
     float distance = duration / (29.1 * 2);
     return distance;
 }

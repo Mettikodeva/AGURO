@@ -60,7 +60,7 @@ public:
     void stop_motor();
     void left(int, int);
     void right(int, int);
-    void mundur(int, int, bool check_switch = false);
+    void mundur(int speed, int time, bool check_switch = false);
 };
 
 #endif

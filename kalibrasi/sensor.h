@@ -3,7 +3,6 @@
 #include "definitions.h"
 
 // sensors pin without mux or i2c  I/O expander
-
 // #define sp1 A0
 // #define sp2 A1
 // #define sp3 A2
@@ -37,8 +36,6 @@ static unsigned char MUX[8][3] = {
     {1, 0, 1},
     {0, 1, 1},
     {1, 1, 1}};
-    
-
 
 class Sensor
 {

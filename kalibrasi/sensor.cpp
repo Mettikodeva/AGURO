@@ -22,6 +22,7 @@ void Sensor::setMux(int index)
 void Sensor::calibrateLine()
 {
     int shift = 0;
+    bool button_state = false;
     for (int j = 0; j < 30; j++)
     {
         for (int i = 0; i < NUM_LEDS; i++)
@@ -46,9 +47,37 @@ void Sensor::calibrateLine()
     int line_[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int background_[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     // int counter = 0;
-    // blink_led(3, 200, CRGB::Red);
-    Serial.println("calibrating");
-    Serial.println("line");
+    blink_led(3, 200, CRGB::Green);
+
+    while (digitalRead(PushButton))
+    {
+        line_[8] = analogRead(SpinFL);
+        // Serial.print(line_[8]);
+        // Serial.print(" ");
+        line_[9] = analogRead(SpinFR);
+        // Serial.print(line_[9]);
+        // Serial.print(" ");
+        // Serial.println();
+        delay(10);
+    }
+    blink_led(3, 200, CRGB::Green);
+    while (digitalRead(PushButton))
+    {
+
+        background_[8] = analogRead(SpinFL);
+        // Serial.print(background_[8]);
+        // Serial.print(" ");
+        background_[9] = analogRead(SpinFR);
+        // Serial.print(background_[9]);
+        // Serial.print(" ");
+        // Serial.println();
+        delay(10);
+    }
+
+    // Serial.println("calibrating");
+    // Serial.println("line");
+    blink_led(3, 200, CRGB::Blue);
+
     while (digitalRead(PushButton))
     {
         for (int i = 0; i < 8; i++)
@@ -56,22 +85,15 @@ void Sensor::calibrateLine()
             setMux(i);
             delayMicroseconds(10);
             line_[i] = analogRead(MUXData);
-            Serial.print(line_[i]);
-            Serial.print(" ");
+            // Serial.print(line_[i]);
+            // Serial.print(" ");
         }
-        line_[8] = analogRead(SpinFL);
-        Serial.print(line_[8]);
-            Serial.print(" ");
-        line_[9] = analogRead(SpinFR);
-        Serial.print(line_[9]);
-            Serial.print(" ");
-        Serial.println();
         delay(10);
     }
 
     Serial.println("background");
 
-    blink_led(3,150,CRGB::Blue);
+    blink_led(3, 150, CRGB::Blue);
 
     Serial.println("background");
     while (digitalRead(PushButton))
@@ -81,16 +103,9 @@ void Sensor::calibrateLine()
             setMux(i);
             delayMicroseconds(10);
             background_[i] = analogRead(MUXData);
-            Serial.print(background_[i]);
-            Serial.print(" ");
+            // Serial.print(background_[i]);
+            // Serial.print(" ");
         }
-        background_[8] = analogRead(SpinFL);
-        Serial.print(background_[8]);
-            Serial.print(" ");;
-        background_[9] = analogRead(SpinFR);
-        Serial.print(background_[9]);
-            Serial.print(" ");
-        Serial.println();
         delay(10);
     }
     this->calibrated = true;
@@ -112,31 +127,31 @@ void Sensor::calibrateLine()
         }
     }
     // save_calibration();
-    blink_led(3,150,CRGB::Red);
+    blink_led(3, 150, CRGB::Red);
     while (digitalRead(PushButton))
     {
         line_[10] = analogRead(SpinBL);
-        Serial.print(line_[10]);
-            Serial.print(" ");
+        // Serial.print(line_[10]);
+        // Serial.print(" ");
         line_[11] = analogRead(SpinBR);
-        Serial.print(line_[11]);
-            Serial.print(" ");
-        Serial.println();
+        // Serial.print(line_[11]);
+        // Serial.print(" ");
+        // Serial.println();
         delay(10);
     }
-    blink_led(3,150,CRGB::Red);
+    blink_led(3, 150, CRGB::Red);
     while (digitalRead(PushButton))
     {
         background_[10] = analogRead(SpinBL);
         Serial.print(background_[10]);
-            Serial.print(" ");
+        Serial.print(" ");
         background_[11] = analogRead(SpinBR);
         Serial.print(background_[11]);
-            Serial.print(" ");
+        Serial.print(" ");
         Serial.println();
         delay(10);
     }
-    blink_led(5,150,CRGB::Red);
+    blink_led(5, 150, CRGB::Red);
     this->calibrated = true;
 
     for (int i = 10; i < 12; i++)

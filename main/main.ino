@@ -3,10 +3,6 @@
 #include "definitions.h"
 
 Aguro aguro;
-// coba ganti main
-// tes ganti lagi
-// tes ganti dari nara
-// tes dari tabah
 /*
 // AGURO FUNCTIONS
     aguro.init(bool debug, Sensor* x);
@@ -56,7 +52,7 @@ void setup()
 
     // AGURO
     aguro.init(true);
-    aguro.setPID(2, 0.0, 1.6);
+    aguro.setPID(1.5, 0.0, 0.3); // Ku = 2 T = 0.7  Kd = 2*0.1*0.7
     aguro._start();
     aguro.magnet(false);
 }
@@ -64,39 +60,45 @@ void setup()
 bool home = true;
 void loop()
 {
-
-
-    int speed = 135;
-    aguro.traceLine(speed);
-
+    int speed = 100;
+    // aguro.traceLine(speed);
+    // aguro.motor(75, 110);
+    // aguro.mundur(100, 50000, false);
+    // delay(5000);
+    // aguro.stop_motor();
+    // delay(4000);
     // LOOPING THROUGH THE ARENA
-    // if (home)
-    // {
-    //     aguro.followUntil(FR, speed, 100);
-    //     // delay(1000);
-    //     aguro.right_auto();
-    //     // delay(1000);
-    //     home = !home;
-    // }
-    // for (int i = 0; i < 5; i++)
-    // {
-    //     aguro.followUntil(TJ, speed, 100);
-    //     blink_led(2, 50, CRGB::Blue);
-    // }
-    // aguro.followUntil(TJ, speed, 100);
-    // delay(1000);
-    // aguro.left_auto();
-    // // delay(2000);
-    // aguro.maju(100, 1000);
-    // aguro.mundur(100, 5000);
-    // aguro.followUntil(FL, speed);
-    // blink_led(2, 50, CRGB::Blue);
-    // aguro.followUntil(FR, speed - 5);
-    // blink_led(2, 50, CRGB::Blue);
-    // aguro.followUntil(FL, speed - 5);
-    // blink_led(2, 50, CRGB::Blue);
-    // aguro.followUntil(FL, speed - 5);
-    // blink_led(2, 50, CRGB::Blue);
-    // aguro.left_auto();
-    
+
+    if (home)
+    {
+        aguro.followUntil(FR, speed, 100);
+        // delay(1000);
+        aguro.right_auto();
+        // delay(1000);
+        home = !home;
+    }
+    for (int i = 0; i < 5; i++)
+    {
+        aguro.followUntil(TJ, speed, 20);
+        blink_led(2, 50, CRGB::Blue);
+    }
+    aguro.followUntil(TJ, speed, 200);
+    delay(200);
+    aguro.left_auto();
+    delay(2000);
+    aguro.maju(100, 300);
+    aguro.magnet(true);
+    aguro.mundur(100, 3000, false);
+    aguro.followUntil(FL, speed + 20);
+    blink_led(2, 50, CRGB::Blue);
+    aguro.followUntil(FR, speed + 15);
+    blink_led(2, 50, CRGB::Blue);
+    aguro.followUntil(FL, speed + 15);
+    blink_led(2, 50, CRGB::Blue);
+    aguro.followUntil(FL, speed + 15);
+    blink_led(2, 50, CRGB::Blue);
+    aguro.stop();
+    while (1)
+    {
+    }
 }
